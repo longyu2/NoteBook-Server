@@ -40,13 +40,13 @@ server.listen(9999,()=>{
 })
 
 
+
+
 app.get("/getNotebookList",function(req,res){
     res.setHeader('Access-Control-Allow-Origin','*')
-    console.log("ss")
     sql_str = "select * from Notebooklist"
     db.query(sql_str,(err,results)=>{
         if(err) return console.log(err.message)      
-        // console.log(results)
         res.send(results)
     })           
       
@@ -57,8 +57,6 @@ app.post("/byIdSelContent",function(req,res){
     sql_str = "select * from Notebooklist where Notebookid =?"
     db.query(sql_str,[Notebookid],(err,results)=>{
         if(err) return console.log(err.message)      
-        // console.log(results)
-        console.log(results)
         res.send(results)    
     })
 })
@@ -69,7 +67,6 @@ app.get("/addnewNotebook",function(req,res){
     //数据库查询
     sql_str="select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) "
     db.query(sql_str,[],(err,results)=>{
-        console.log(results)
         res.send(results)
     })
 })
@@ -80,3 +77,42 @@ app.post("/updateContent",function(req,res){
     res.send("修改成功")
 })
 
+// 导出
+app.get("/output.json",function(req,res){
+    res.setHeader('Access-Control-Allow-Origin','*')
+    res.setHeader('Content-Type', 'application/octet-stream')
+   
+    sql_str = "select * from Notebooklist"
+    db.query(sql_str,(err,results)=>{
+        if(err) return console.log(err.message)      
+        res.send(JSON.stringify(results))
+    })           
+   
+})
+
+
+
+
+// 根据id删除
+app.post('/delContent',function(req,res){
+    res.setHeader('Access-Control-Allow-Origin','*')
+    // console.log(req.body)
+
+    const del_list = req.body.del_sql_notebookid_list
+    
+
+    del_list.forEach(element => {
+        console.log(element)
+        byIdDel(element)        // 调用封装好的单条删除
+    });
+    res.send("删除成功")
+})
+
+
+ // 由于删除单次只能一条，故封装为函数
+ function byIdDel (Notebookid){
+    const sql_str="delete from Notebooklist where Notebookid = ?;"
+    db.query(sql_str,[Notebookid],(err,results)=>{
+        return results
+    })
+ }
