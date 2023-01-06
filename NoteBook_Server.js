@@ -5,8 +5,8 @@ const https = require('https')
 const fs = require("fs")
 
 const httpsOption = {
-    key : fs.readFileSync("../ltyis.com_nginx/ltyis.com.key"),
-    cert: fs.readFileSync("../ltyis.com_nginx/ltyis.com_bundle.crt")
+    key : fs.readFileSync("../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn.key"),
+    cert: fs.readFileSync("../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn_bundle.crt")
 }
 
 
