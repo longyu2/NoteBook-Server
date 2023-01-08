@@ -1,48 +1,16 @@
-const express = require("express")
-const mysql = require('mysql')
-const cors = require('cors')
-const https = require('https')
-const fs = require("fs")
-
-const httpsOption = {
-    key : fs.readFileSync("../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn.key"),
-    cert: fs.readFileSync("../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn_bundle.crt")
-}
+const express = require('express')
+const router = express.Router()
+const fs = require('fs')
+const mysql = require("mysql");
 
 
-const app = express()
+// 读取配置文件，根据配置文件决定要加载的项
+const server_config = JSON.parse(fs.readFileSync("server-config.json"));
+const db = mysql.createPool(server_config.mysql_setting)
 
 
 
-
-app.use(cors())
-const bodyParser = require('body-parser')
-
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
-
-
-const db = mysql.createPool({
-    host:'127.0.0.1',
-    user:'root',
-    password:'20010506longyuL.',
-    database:'NotebookDB',
-    timezone:"08:00"
-})
-
-
-const server = https.createServer(httpsOption, app)
-
-
-server.listen(9999,()=>{
-    console.log("在线笔记本服务端已经启动")
-})
-
-
-
-
-app.get("/getNotebookList",function(req,res){
+router.get("/getNotebookList",function(req,res){
     res.setHeader('Access-Control-Allow-Origin','*')
     sql_str = "select * from Notebooklist"
     db.query(sql_str,(err,results)=>{
@@ -51,7 +19,7 @@ app.get("/getNotebookList",function(req,res){
     })           
       
 })
-app.post("/byIdSelContent",function(req,res){
+router.post("/byIdSelContent",function(req,res){
     Notebookid = req.body.id
     // 查询
     sql_str = "select * from Notebooklist where Notebookid =?"
@@ -60,7 +28,7 @@ app.post("/byIdSelContent",function(req,res){
         res.send(results)    
     })
 })
-app.get("/addnewNotebook",function(req,res){
+router.get("/addnewNotebook",function(req,res){
     sql_str="insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')"
     //数据库增加
     db.query(sql_str,[],(err,results)=>{})
@@ -71,16 +39,16 @@ app.get("/addnewNotebook",function(req,res){
     })
 })
 // 修改文章
-app.post("/updateContent",function(req,res){
+router.post("/updateContent",function(req,res){
     sql_str = "update Notebooklist set title=?,content=?,updatetime=now() where Notebookid = ?"
     db.query(sql_str,[req.body.title,req.body.content,req.body.Notebookid],(err,results)=>{})
     res.send("修改成功")
 })
 
 // 导出
-app.get("/output.json",function(req,res){
+router.get("/output.json",function(req,res){
     res.setHeader('Access-Control-Allow-Origin','*')
-    res.setHeader('Content-Type', 'application/octet-stream')
+    res.setHeader('Content-Type', 'routerlication/octet-stream')
    
     sql_str = "select * from Notebooklist"
     db.query(sql_str,(err,results)=>{
@@ -92,17 +60,14 @@ app.get("/output.json",function(req,res){
 
 
 
-
 // 根据id删除
-app.post('/delContent',function(req,res){
+router.post('/delContent',function(req,res){
     res.setHeader('Access-Control-Allow-Origin','*')
-    // console.log(req.body)
-
+    
     const del_list = req.body.del_sql_notebookid_list
     
-
     del_list.forEach(element => {
-        console.log(element)
+       
         byIdDel(element)        // 调用封装好的单条删除
     });
     res.send("删除成功")
@@ -116,3 +81,6 @@ app.post('/delContent',function(req,res){
         return results
     })
  }
+
+
+ module.exports = router
