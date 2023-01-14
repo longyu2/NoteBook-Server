@@ -1,4 +1,4 @@
-drop database if exists Notebookdb;
+drop database if exists NotebookDB;
 create database NotebookDB;
 use NotebookDB;
 
