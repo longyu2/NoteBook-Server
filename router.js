@@ -33,13 +33,26 @@ router.get("/addnewNotebook", function (req, res) {
   let sql_str =
     "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')";
   //数据库增加
-  db.query(sql_str, [], (err, results) => {});
-  //数据库查询
-  sql_str =
-    "select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) ";
   db.query(sql_str, [], (err, results) => {
-    res.send(results);
+
+    // 必须嵌套进回调函数，不然查询会先执行
+    console.log("我是增加的回调")
+
+     //数据库查询
+   sql_str =
+   "select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) ";
+   db.query(sql_str, [], (err, results) => {
+    console.log("我是查询的回调")
+
+   res.send(results);
+ });
+
+
   });
+
+
+  
+
 });
 // 修改文章
 router.post("/updateContent", function (req, res) {
@@ -48,7 +61,7 @@ router.post("/updateContent", function (req, res) {
   db.query(
     sql_str,
     [req.body.title, req.body.content, req.body.Notebookid],
-    (err, results) => {}
+    (err, results) => { }
   );
   res.send("修改成功");
 });
