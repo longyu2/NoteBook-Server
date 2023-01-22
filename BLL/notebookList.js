@@ -8,8 +8,6 @@ module.exports =  {
             queryList = [x.Notebookid,x.authorid,x.title,x.createtime,x.updatetime,x.content]
             DAL_notebookList.ByJsonSaveArticle(queryList)
         });
-        
         return "成功"
     },
-    
 }

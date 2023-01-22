@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const mysql = require("mysql");
+const jwt = require('jsonwebtoken')
 
 const BLL_notebookList = require("./BLL/notebookList.js");
 const BLL_folder = require("./BLL/folder.js");
@@ -11,6 +12,25 @@ const server_config = JSON.parse(
   fs.readFileSync("./config/server-config.json")
 );
 const db = mysql.createPool(server_config.mysql_setting);
+
+router.post('/login', (req, res) => {
+  const sql_str = "select * from userinfo where username = 'admin' and userpwd = '123456';"
+  db.query(sql_str, [], (err, results) => {
+    if (err) console.error(err);
+    console.log(results)
+    const token = 'Bearer ' + jwt.sign(
+      {
+        _id: 1,
+        admin: true
+      },
+      'secret12345',
+      {
+        expiresIn: 3600 * 24 * 3
+      }
+    )
+    res.json({ status: "登录成功", data: { token: token } })
+  })
+})
 
 router.get("/getNotebookList", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -36,22 +56,17 @@ router.get("/addnewNotebook", function (req, res) {
   db.query(sql_str, [], (err, results) => {
 
     // 必须嵌套进回调函数，不然查询会先执行
-    console.log("我是增加的回调")
-
-     //数据库查询
-   sql_str =
-   "select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) ";
-   db.query(sql_str, [], (err, results) => {
-    console.log("我是查询的回调")
-
-   res.send(results);
- });
-
+    //数据库查询
+    sql_str =
+      "select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) ";
+    db.query(sql_str, [], (err, results) => {
+      res.send(results);
+    });
 
   });
 
 
-  
+
 
 });
 // 修改文章

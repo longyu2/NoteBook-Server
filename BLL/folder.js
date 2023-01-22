@@ -6,10 +6,8 @@ module.exports =  {
         const folder_id = req.body.folder_id
         const check_id_list = req.body.check_id_list
 
-      
-
         check_id_list.forEach(element => {
-           DAL_folder.FolderAddArticle(element,folder_id)
+          return DAL_folder.FolderAddArticle(element,folder_id)
         });
         
     }
