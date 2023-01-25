@@ -82,7 +82,7 @@ router.post("/updateContent", function (req, res) {
 });
 
 // 导出
-router.get("/output.json", function (req, res) {
+router.get("/output", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "routerlication/octet-stream");
 
