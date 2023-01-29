@@ -6,16 +6,18 @@ const app = express();
 const Router = require("./router");
 const expressJwt = require('express-jwt')
 
+// 读取配置文件，根据配置文件决定要加载的项
+const server_config = JSON.parse(fs.readFileSync("config/server-config.json"));
 
 
 // 默认加载项
 app.use(cors());
 
 app.use(expressJwt.expressjwt({
-  secret: 'secret12345'  ,// 签名的密钥 或 PublicKey,
+  secret: server_config.tokenKey  ,// 签名的密钥 或 PublicKey,
   algorithms: ["HS256"] 
 }).unless({
-  path: ['/login', '/signup']  // 指定路径不经过 Token 解析
+  path: ['/login', '/signup','testToken']  // 指定路径不经过 Token 解析
 }))
 
 
@@ -29,9 +31,6 @@ app.use("/", Router);
 
 
 
-
-// 读取配置文件，根据配置文件决定要加载的项
-const server_config = JSON.parse(fs.readFileSync("config/server-config.json"));
 
 let server;
 

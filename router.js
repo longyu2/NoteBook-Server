@@ -23,7 +23,7 @@ router.post('/login', (req, res) => {
         _id: 1,
         admin: true
       },
-      'secret12345',
+      server_config.tokenKey,
       {
         expiresIn: 3600 * 24 * 3
       }
@@ -168,4 +168,9 @@ function byIdDel(Notebookid) {
   });
 }
 
+
+// 测试token是否有效
+router.get("/testToken",(req,res)=>{
+  res.send("success")
+})
 module.exports = router;
