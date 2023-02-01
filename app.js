@@ -4,33 +4,30 @@ const https = require("https");
 const fs = require("fs");
 const app = express();
 const Router = require("./router");
-const expressJwt = require('express-jwt')
+const expressJwt = require("express-jwt");
 
 // 读取配置文件，根据配置文件决定要加载的项
 const server_config = JSON.parse(fs.readFileSync("config/server-config.json"));
 
-
 // 默认加载项
 app.use(cors());
 
-app.use(expressJwt.expressjwt({
-  secret: server_config.tokenKey  ,// 签名的密钥 或 PublicKey,
-  algorithms: ["HS256"] 
-}).unless({
-  path: ['/login', '/signup','testToken']  // 指定路径不经过 Token 解析
-}))
-
-
-
+app.use(
+  expressJwt
+    .expressjwt({
+      secret: server_config.tokenKey, // 签名的密钥 或 PublicKey,
+      algorithms: ["HS256"],
+    })
+    .unless({
+      path: ["/login", "/signup", "/testt"], // 指定路径不经过 Token 解析
+    })
+);
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.use("/", Router);
-
-
-
 
 let server;
 
@@ -48,10 +45,6 @@ if (server_config.https) {
 } else {
   server = app;
 }
-
-
-
-
 
 server.listen(9999, () => {
   console.log("在线笔记本服务端已经启动");

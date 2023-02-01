@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const mysql = require("mysql");
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
 const BLL_notebookList = require("./BLL/notebookList.js");
 const BLL_folder = require("./BLL/folder.js");
@@ -13,24 +13,27 @@ const server_config = JSON.parse(
 );
 const db = mysql.createPool(server_config.mysql_setting);
 
-router.post('/login', (req, res) => {
-  const sql_str = "select * from userinfo where username = 'admin' and userpwd = '123456';"
+router.post("/login", (req, res) => {
+  const sql_str =
+    "select * from userinfo where username = 'admin' and userpwd = '123456';";
   db.query(sql_str, [], (err, results) => {
     if (err) console.error(err);
-    console.log(results)
-    const token = 'Bearer ' + jwt.sign(
-      {
-        _id: 1,
-        admin: true
-      },
-      server_config.tokenKey,
-      {
-        expiresIn: 3600 * 24 * 3
-      }
-    )
-    res.json({ status: "登录成功", data: { token: token } })
-  })
-})
+    console.log(results);
+    const token =
+      "Bearer " +
+      jwt.sign(
+        {
+          _id: 1,
+          admin: true,
+        },
+        server_config.tokenKey,
+        {
+          expiresIn: 3600 * 24 * 3,
+        }
+      );
+    res.json({ status: "登录成功", data: { token: token } });
+  });
+});
 
 router.get("/getNotebookList", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -54,7 +57,6 @@ router.get("/addnewNotebook", function (req, res) {
     "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')";
   //数据库增加
   db.query(sql_str, [], (err, results) => {
-
     // 必须嵌套进回调函数，不然查询会先执行
     //数据库查询
     sql_str =
@@ -62,12 +64,7 @@ router.get("/addnewNotebook", function (req, res) {
     db.query(sql_str, [], (err, results) => {
       res.send(results);
     });
-
   });
-
-
-
-
 });
 // 修改文章
 router.post("/updateContent", function (req, res) {
@@ -76,7 +73,7 @@ router.post("/updateContent", function (req, res) {
   db.query(
     sql_str,
     [req.body.title, req.body.content, req.body.Notebookid],
-    (err, results) => { }
+    (err, results) => {}
   );
   res.send("修改成功");
 });
@@ -145,7 +142,7 @@ router.post("/ByJsonSaveArticle", (req, res) => {
 
 // 往文件夹添加文章
 router.post("/FolderAddArticle", (req, res) => {
-  res.send(BLL_folder.FolderAddArticle(req));
+  BLL_folder.FolderAddArticle(req).then((data) => res.send(data));
 });
 
 // 由于删除单次只能一条，故封装为函数
@@ -168,9 +165,13 @@ function byIdDel(Notebookid) {
   });
 }
 
-
 // 测试token是否有效
-router.get("/testToken",(req,res)=>{
-  res.send("success")
-})
+router.get("/testToken", (req, res) => {
+  res.send("success");
+});
+
+router.get("/testt", (req, res) => {
+  console.log("s");
+  BLL_notebookList.blltest().then((data) => res.send(data));
+});
 module.exports = router;
