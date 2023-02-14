@@ -1,6 +1,7 @@
 const db = require("./db.js");
 
 module.exports = {
+  // 根据json上传文章
   ByJsonSaveArticle: (queryList) => {
     const sql_str = "insert into Notebooklist values(?,?,?,?,?,?);";
     db.query(sql_str, queryList, (err, results) => {
@@ -10,16 +11,17 @@ module.exports = {
       return "成功";
     });
   },
-  byFolderIdQueryArticle: function () {
-    let sql = "select * from userinfo";
+
+  // 根据文件夹id查询文章列表
+  byFolderIdQueryArticle: function (folderid) {
+    let sql = "select * from folder_notebook s1,notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ?";
     return new Promise((resolve, reject) => {
-      db.query(sql, (err, result) => {
+      db.query(sql, [folderid],(err, result) => {
         if (err) {
           reject(err);
           return;
         }
-        console.log("mqsql数据已取出");
-        resolve(result);
+        resolve({status:"查询成功",data:result});
       });
     });
   },

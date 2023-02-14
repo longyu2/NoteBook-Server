@@ -3,6 +3,8 @@ create database NotebookDB;
 use NotebookDB;
 
 drop table if exists userinfo;
+
+-- 用户表
 create table userinfo(
 userid int primary key auto_increment,
 username varchar(20) unique,
@@ -10,7 +12,7 @@ userpwd varchar(20)
 );
 insert into userinfo (username,userpwd) values('admin','123456');
 
--- --创建博客表
+-- --文章表
 drop table if exists Notebooklist;
 create table Notebooklist(
 Notebookid int primary key auto_increment,
@@ -24,14 +26,14 @@ foreign key(authorid) references userinfo(userid)
 insert into Notebooklist(authorid,title,createtime,updatetime,content) values (1,'asp。net教程',now(),now(),'我是content1');
 
 
-
+-- 文件夹表
 create table folders(
 	folder_id int primary key auto_increment,
     folder_name nvarchar(100)
 );
 insert into folders (folder_name )values ('测试文件夹');
 
-
+-- 文件夹——文章表
 create table folder_notebook (
 	folder_id int not null ,
     notebookid int not null,
@@ -39,16 +41,9 @@ create table folder_notebook (
     foreign key(Notebookid) references Notebooklist(Notebookid),
     primary key(folder_id,notebookid)
 );
-
 insert into folder_notebook values (1,1); 
 
-select * from folders;
--- select * from userinfo;
--- select * from Notebooklist order by createtime desc ;
--- select title, content from Notebooklist where Notebookid = 1;
- select * from Notebooklist;
--- select * from Notebooklist where Notebookid =1;
-select * from folder_notebook;
+
 
 
 -- 根据文件夹id查询文章

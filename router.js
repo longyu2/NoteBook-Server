@@ -4,7 +4,7 @@ const fs = require("fs");
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 
-const BLL_notebookList = require("./BLL/notebookList.js");
+const BLL_notebookList = require("./BLL/articles.js");
 const BLL_folder = require("./BLL/folder.js");
 
 // 读取配置文件，根据配置文件决定要加载的项
@@ -148,8 +148,4 @@ router.get("/testToken", (req, res) => {
   res.send("success");
 });
 
-router.get("/testt", (req, res) => {
-  console.log("s");
-  BLL_notebookList.blltest().then((data) => res.send(data));
-});
 module.exports = router;
