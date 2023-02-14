@@ -5,7 +5,7 @@ module.exports = {
     const inputJsonObj = req.body;
 
     inputJsonObj.forEach((x) => {
-      queryList = [
+      let queryList = [
         x.Notebookid,
         x.authorid,
         x.title,

@@ -49,3 +49,7 @@ select * from folders;
  select * from Notebooklist;
 -- select * from Notebooklist where Notebookid =1;
 select * from folder_notebook;
+
+
+-- 根据文件夹id查询文章
+select * from folder_notebook s1,notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = 1

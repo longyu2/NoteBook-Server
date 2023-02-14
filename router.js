@@ -13,28 +13,6 @@ const server_config = JSON.parse(
 );
 const db = mysql.createPool(server_config.mysql_setting);
 
-router.post("/login", (req, res) => {
-  const sql_str =
-    "select * from userinfo where username = 'admin' and userpwd = '123456';";
-  db.query(sql_str, [], (err, results) => {
-    if (err) console.error(err);
-    console.log(results);
-    const token =
-      "Bearer " +
-      jwt.sign(
-        {
-          _id: 1,
-          admin: true,
-        },
-        server_config.tokenKey,
-        {
-          expiresIn: 3600 * 24 * 3,
-        }
-      );
-    res.json({ status: "登录成功", data: { token: token } });
-  });
-});
-
 router.get("/getNotebookList", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   let sql_str = "select * from Notebooklist";
