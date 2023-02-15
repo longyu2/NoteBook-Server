@@ -2,19 +2,22 @@ const DAL = require("../DAL/articles");
 
 module.exports = {
   ByJsonSaveArticle: (req) => {
-    const inputJsonObj = req.body;
-    inputJsonObj.forEach((x) => {
-      let queryList = [
-        x.Notebookid,
-        x.authorid,
-        x.title,
-        x.createtime,
-        x.updatetime,
-        x.content,
-      ];
-      DAL.ByJsonSaveArticle(queryList);
-    });
-    return "成功";
+   
+    return new Promise((reslove,reject)=>{
+      const inputJsonObj = req.body;
+      inputJsonObj.forEach((x) => {
+        let queryList = [
+          x.Notebookid,
+          x.authorid,
+          x.title,
+          x.createtime,
+          x.updatetime,
+          x.content,
+        ];
+        DAL.ByJsonSaveArticle(queryList);
+      });
+      reslove ("成功")
+    }) 
   },
 
   // 根据folder_id 查询 文章

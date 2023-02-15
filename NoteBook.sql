@@ -51,6 +51,10 @@ insert into folder_notebook values (1,1);
 -- select * from folder_notebook s1,notebooklist s2 where 
 -- s1.notebookid = s2.Notebookid and s1.folder_id = 1;
 
--- 查询未分类的文章
+select * from folders;
+select * from folder_notebook;
+select * from Notebooklist;
 
+-- 查询未分类的文章
+-- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );
 

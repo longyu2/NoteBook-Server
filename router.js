@@ -115,7 +115,7 @@ router.post("/CreateFolder", function (req, res) {
 
 // 从json文件导入文章
 router.post("/ByJsonSaveArticle", (req, res) => {
-  res.send(BLL_notebookList.ByJsonSaveArticle(req));
+  BLL_notebookList.ByJsonSaveArticle(req).then(data=>res.send(data))
 });
 
 
