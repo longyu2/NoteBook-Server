@@ -5,7 +5,7 @@ const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 
 const BLL_notebookList = require("./BLL/articles.js");
-const BLL_folder = require("./BLL/folder.js");
+const BLL_folder = require("./BLL/folders.js");
 
 // 读取配置文件，根据配置文件决定要加载的项
 const server_config = JSON.parse(
@@ -118,10 +118,6 @@ router.post("/ByJsonSaveArticle", (req, res) => {
   res.send(BLL_notebookList.ByJsonSaveArticle(req));
 });
 
-// 往文件夹添加文章
-router.post("/FolderAddArticle", (req, res) => {
-  BLL_folder.FolderAddArticle(req).then((data) => res.send(data));
-});
 
 // 由于删除单次只能一条，故封装为函数
 function byIdDel(Notebookid) {

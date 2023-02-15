@@ -3,9 +3,13 @@ const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
 const app = express();
+
+// 路由
 const Router = require("./router");
-const user_router = require("./Router/user")
-const articles_router = require('./Router/articles.js')
+const user_router = require("./Router/user");
+const articles_router = require("./Router/articles.js");
+const folders_router = require("./Router/folders")
+
 const expressJwt = require("express-jwt");
 
 // 读取配置文件，根据配置文件决定要加载的项
@@ -15,7 +19,7 @@ const server_config = JSON.parse(fs.readFileSync("config/server-config.json"));
 app.use(cors());
 
 // 根据配置项决定加载
-if (server_config.Verify == true){
+if (server_config.Verify == true) {
   app.use(
     expressJwt
       .expressjwt({
@@ -28,15 +32,17 @@ if (server_config.Verify == true){
   );
 }
 
-
 const bodyParser = require("body-parser");
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 // 设置路由
 app.use("/v1", Router);
-app.use("/v1",user_router)
-app.use("/v1",articles_router)
+app.use("/v1", user_router);
+app.use("/v1", articles_router);
+app.use("/v1", folders_router);
+
+
 let server;
 // 若启用https,则读取密钥和证书
 if (server_config.https) {

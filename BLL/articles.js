@@ -18,9 +18,13 @@ module.exports = {
   },
 
   // 根据folder_id 查询 文章
-  byFolderIdQueryArticle:(req)=>{
-    const folderid = req.query.folderid
-    console.log(req.query)
-    return DAL.byFolderIdQueryArticle(folderid)
-  }
+  byFolderIdQueryArticle: (req) => {
+    const folderid = req.query.folderid;
+    if(folderid == -1){
+      // 若folderid == 1 ，则说明需要查询未分类文章
+      return DAL.SelUnclassifiedArticle()
+    }
+    console.log(req.query);
+    return DAL.byFolderIdQueryArticle(folderid);
+  },
 };

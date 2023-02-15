@@ -23,7 +23,8 @@ updatetime datetime(0) not null,
 content text,
 foreign key(authorid) references userinfo(userid)
 );
-insert into Notebooklist(authorid,title,createtime,updatetime,content) values (1,'asp。net教程',now(),now(),'我是content1');
+insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+(1,'asp。net教程',now(),now(),'我是content1');
 
 
 -- 文件夹表
@@ -47,4 +48,9 @@ insert into folder_notebook values (1,1);
 
 
 -- 根据文件夹id查询文章
-select * from folder_notebook s1,notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = 1
+-- select * from folder_notebook s1,notebooklist s2 where 
+-- s1.notebookid = s2.Notebookid and s1.folder_id = 1;
+
+-- 查询未分类的文章
+
+
