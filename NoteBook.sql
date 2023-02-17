@@ -11,7 +11,7 @@ username varchar(20) unique,
 userpwd varchar(20)
 );
 insert into userinfo (username,userpwd) values('admin','123456');
-
+insert into userinfo (username,userpwd) values('user2','123456');
 -- --文章表
 drop table if exists Notebooklist;
 create table Notebooklist(
@@ -25,7 +25,8 @@ foreign key(authorid) references userinfo(userid)
 );
 insert into Notebooklist(authorid,title,createtime,updatetime,content) values
 (1,'asp。net教程',now(),now(),'我是content1');
-
+insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+(2,'测试',now(),now(),'我是content2');
 
 -- 文件夹表
 create table folders(
@@ -53,7 +54,7 @@ insert into folder_notebook values (1,1);
 
 select * from folders;
 select * from folder_notebook;
-select * from Notebooklist;
+select  * from Notebooklist order by createtime asc limit 1 ;
 
 -- 查询未分类的文章
 -- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );

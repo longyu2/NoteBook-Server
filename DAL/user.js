@@ -22,7 +22,7 @@ module.exports = {
           "Bearer " +
           jwt.sign(
             {
-              _id: 1,
+              userid: results[0].userid,
               admin: true,
             },
             server_config.tokenKey,
@@ -32,11 +32,8 @@ module.exports = {
           );
         console.log("df");
         if (results.length > 0) {
-          console.log("成功");
           resolve({ status: "成功", data: { token: token } });
         } else {
-          console.log("失败");
-
           resolve({ status: "失败", data: { error_status: "账号或密码错误" } });
         }
       });

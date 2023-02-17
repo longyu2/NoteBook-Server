@@ -1,5 +1,5 @@
 const db = require("./db.js");
-
+const db_promise = require("./db_promise")
 module.exports = {
   // 根据json上传文章
   ByJsonSaveArticle: (queryList) => {
@@ -28,17 +28,46 @@ module.exports = {
   },
 
   // 查询未分类的文章
-  SelUnclassifiedArticle:function(){
+  SelUnclassifiedArticle: function () {
     const sql_str = "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );"
-    return new Promise((resolve,reject)=>{
-      db.query(sql_str,(err,results)=>{
-        if(err){
+    return new Promise((resolve, reject) => {
+      db.query(sql_str, (err, results) => {
+        if (err) {
           reject(err)
           return
         }
         const data = JSON.parse(JSON.stringify(results))
-        resolve({status:"成功",data:data})
+        resolve({ status: "成功", data: data })
       })
     })
-  } 
-};
+  },
+
+  // 查询所有文章
+  SelAllArticle:function(){
+    return db_promise.query("select * from Notebooklist;",[])
+  },
+
+  // 增加文章
+  AddArticle: function (userid, folderid) {
+    let sql_str = "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')"
+    // 调用3级promise 执行三条语句
+    return db_promise.query(sql_str, [])
+      .then(data => {
+        sql_str = "select  * from Notebooklist order by  Notebookid desc limit 1 ;"
+        return db_promise.query(sql_str, [])   // 查询第一条
+      })
+      .then(data => {
+        // 对于无文件夹的新建，无需为folder_article表插入记录
+        if (folderid == -1 || folderid == -2) {
+          console.log("无文件夹")   
+          return { status: "成功", data: {message:"新建一篇文章，未放入任何文件夹",articleInfo:data[0]} }
+        }
+        else {
+          const notebookid = data[0].Notebookid   // 从上一次查询中取出刚刚创建完成的文章id
+          sql_str = "insert into folder_notebook values(?,?);"
+          db_promise.query(sql_str,[folderid,notebookid])
+          return { status: "成功", data:{message:"新建一篇文章,放入了文件夹",articleInfo:data[0]}}
+        }
+      })
+  }
+}

@@ -30,20 +30,7 @@ router.post("/byIdSelContent", function (req, res) {
     res.send(results);
   });
 });
-router.get("/addnewNotebook", function (req, res) {
-  let sql_str =
-    "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')";
-  //数据库增加
-  db.query(sql_str, [], (err, results) => {
-    // 必须嵌套进回调函数，不然查询会先执行
-    //数据库查询
-    sql_str =
-      "select  *  from Notebooklist where Notebookid = (select max(Notebookid) from Notebooklist) ";
-    db.query(sql_str, [], (err, results) => {
-      res.send(results);
-    });
-  });
-});
+
 // 修改文章
 router.post("/updateContent", function (req, res) {
   let sql_str =
@@ -115,9 +102,8 @@ router.post("/CreateFolder", function (req, res) {
 
 // 从json文件导入文章
 router.post("/ByJsonSaveArticle", (req, res) => {
-  BLL_notebookList.ByJsonSaveArticle(req).then(data=>res.send(data))
+  BLL_notebookList.ByJsonSaveArticle(req).then((data) => res.send(data));
 });
-
 
 // 由于删除单次只能一条，故封装为函数
 function byIdDel(Notebookid) {
