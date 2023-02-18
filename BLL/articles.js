@@ -1,22 +1,11 @@
 const DAL = require("../DAL/articles");
 
 module.exports = {
+  // 根据json 上传文章
   ByJsonSaveArticle: (req) => {
-    return new Promise((reslove, reject) => {
-      const inputJsonObj = req.body;
-      inputJsonObj.forEach((x) => {
-        let queryList = [
-          x.Notebookid,
-          x.authorid,
-          x.title,
-          x.createtime,
-          x.updatetime,
-          x.content,
-        ];
-        DAL.ByJsonSaveArticle(queryList);
-      });
-      reslove("成功");
-    });
+    let Notebooklist = req.body.Notebooklist
+    let folder_notebook = req.body.folder_notebook
+    return DAL.ByJsonSaveArticle(Notebooklist, folder_notebook)
   },
 
   // 根据folder_id 查询 文章
@@ -47,4 +36,9 @@ module.exports = {
     const userid = req.user.userid;
     return DAL.AddArticle(userid, folderid);
   },
+
+  // 导出文章和文件夹信息
+  Output: function (req) {
+    return DAL.Output()
+  }
 };

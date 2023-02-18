@@ -12,7 +12,6 @@ const server_config = JSON.parse(
   fs.readFileSync("./config/server-config.json")
 );
 const db = mysql.createPool(server_config.mysql_setting);
-
 router.get("/getNotebookList", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   let sql_str = "select * from Notebooklist";
@@ -43,17 +42,7 @@ router.post("/updateContent", function (req, res) {
   res.send("修改成功");
 });
 
-// 导出
-router.get("/output", function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "routerlication/octet-stream");
 
-  let sql_str = "select * from Notebooklist";
-  db.query(sql_str, (err, results) => {
-    if (err) return console.log(err.message);
-    res.send(JSON.stringify(results));
-  });
-});
 
 // 根据id删除
 router.post("/delContent", function (req, res) {

@@ -13,5 +13,9 @@ router.get("/articles", (req, res) => {
 router.post("/articles", (req, res) => {
   BLL.AddArticle(req).then(data => res.send(data))
 })
+router.get("/backups",(req,res)=>{
+  BLL.Output(req).then(data=>res.send(data))
+})
 
 module.exports = router;
+

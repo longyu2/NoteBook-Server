@@ -23,17 +23,17 @@ updatetime datetime(0) not null,
 content text,
 foreign key(authorid) references userinfo(userid)
 );
-insert into Notebooklist(authorid,title,createtime,updatetime,content) values
-(1,'asp。net教程',now(),now(),'我是content1');
-insert into Notebooklist(authorid,title,createtime,updatetime,content) values
-(2,'测试',now(),now(),'我是content2');
+-- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+-- (1,'asp。net教程',now(),now(),'我是content1');
+-- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+-- (2,'测试',now(),now(),'我是content2');
 
 -- 文件夹表
 create table folders(
 	folder_id int primary key auto_increment,
     folder_name nvarchar(100)
 );
-insert into folders (folder_name )values ('测试文件夹');
+-- insert into folders (folder_name )values ('测试文件夹');
 
 -- 文件夹——文章表
 create table folder_notebook (
@@ -43,7 +43,7 @@ create table folder_notebook (
     foreign key(Notebookid) references Notebooklist(Notebookid),
     primary key(folder_id,notebookid)
 );
-insert into folder_notebook values (1,1); 
+-- insert into folder_notebook values (1,1);
 
 
 
@@ -54,7 +54,7 @@ insert into folder_notebook values (1,1);
 
 select * from folders;
 select * from folder_notebook;
-select  * from Notebooklist order by createtime asc limit 1 ;
+select  * from Notebooklist;
 
 -- 查询未分类的文章
 -- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );
