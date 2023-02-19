@@ -20,7 +20,7 @@ module.exports = {
   // 根据文件夹id查询文章列表
   byFolderIdQueryArticle: function (folderid) {
     let sql =
-      "select * from folder_notebook s1,Notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ?";
+      "select * from folder_notebook s1,Notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ? order by createtime";
     return new Promise((resolve, reject) => {
       db.query(sql, [folderid], (err, result) => {
         if (err) {
@@ -34,7 +34,7 @@ module.exports = {
 
   // 查询未分类的文章
   SelUnclassifiedArticle: function () {
-    const sql_str = "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );"
+    const sql_str = "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook ) order by createtime asc;"
     return new Promise((resolve, reject) => {
       db.query(sql_str, (err, results) => {
         if (err) {
@@ -49,7 +49,7 @@ module.exports = {
 
   // 查询所有文章
   SelAllArticle: function () {
-    return db_promise.query("select * from Notebooklist;", [])
+    return db_promise.query("select * from Notebooklist order by createtime asc;", [])
   },
 
   // 增加文章

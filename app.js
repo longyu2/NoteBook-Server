@@ -26,7 +26,7 @@ if (server_config.token_Verify === true) {
       .expressjwt({
         secret: server_config.tokenKey, // 签名的密钥 或 PublicKey,
         algorithms: ["HS256"],
-        requestProperty:"user"
+        requestProperty: "user"
       })
       .unless({
         path: ["/v1/session", "/signup", "/testt"], // 指定路径不经过 Token 解析
@@ -35,8 +35,12 @@ if (server_config.token_Verify === true) {
 }
 
 const bodyParser = require("body-parser");
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+// app.use(bodyParser.json()); // support json encoded bodies
+// app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+
+app.use(bodyParser.json({ limit: "100mb" }));//设置post body数据的大小
+
 
 // 设置路由
 app.use("/v1", Router);
@@ -62,7 +66,7 @@ if (server_config.https) {
 
 
 // 捕获token 错误
-app.use(function (err, req, res,next) {
+app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
     res.status(401).send('invalid token')
   }

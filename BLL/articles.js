@@ -3,6 +3,7 @@ const DAL = require("../DAL/articles");
 module.exports = {
   // 根据json 上传文章
   ByJsonSaveArticle: (req) => {
+    console.log("系")
     let Notebooklist = req.body.Notebooklist
     let folder_notebook = req.body.folder_notebook
     return DAL.ByJsonSaveArticle(Notebooklist, folder_notebook)
@@ -32,8 +33,19 @@ module.exports = {
 
   // 新增文章
   AddArticle: function (req) {
+    console.log(req.user)
+
     const folderid = req.body.folderid
-    const userid = req.user.userid;
+    let userid = req.user.userid;
+    
+
+   
+    if(req.user === undefined){
+      userid = 1
+      console.log("usd")
+      console.log(userid)
+    }
+
     return DAL.AddArticle(userid, folderid);
   },
 
