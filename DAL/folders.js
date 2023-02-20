@@ -1,4 +1,5 @@
 const db = require("./db.js");
+const db_promise = require("./db_promise.js");
 
 module.exports = {
   // 往文件夹添加文章
@@ -41,6 +42,34 @@ module.exports = {
           });
         }
       });
-    }).catch(() => {});
+    }).catch(() => { });
   },
+
+  //修改文件夹名
+  updateFolderName: function (folderid, newName) {
+    return db_promise.query("update folders set folder_name = ? where folder_id = ?", [newName, folderid]).then(data => { return { status: "成功" } })
+  },
+
+  // 删除文件夹
+  deleteFolderById: folder_id => {
+    let sql_str = "delete from folder_notebook where folder_id = ?"
+    return db_promise.query(sql_str, [folder_id])
+      .then(data => {
+        sql_str = "delete from folders where  folder_id = ?"
+        db_promise.query(sql_str, [folder_id])
+      })
+      .then(data => {
+        return { status: "删除成功" }
+      })
+  },
+
+  // 创建文件夹
+  createFolder:(folder_name)=>{
+    let sql_str = "insert into  folders  (folder_name) values (?)";
+
+    return db_promise.query(sql_str, [folder_name]).then(data=>{
+      sql_str = "select * from  folders order by folder_id desc limit 1"
+      return db_promise.query(sql_str,[])
+    })
+  }
 };

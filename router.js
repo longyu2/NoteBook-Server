@@ -67,25 +67,7 @@ router.get("/QueryFolder", function (req, res) {
   });
 });
 
-//新建文件夹
-router.post("/CreateFolder", function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
 
-  let sql_str = "insert into  folders  (folder_name) values (?)";
-  db.query(sql_str, [req.body.folder_name], (err, results) => {
-    if (err) return console.log(err.message);
-
-    // 新建完成后查询最新文件夹并返回
-    db.query(
-      "select * from  folders order by folder_id desc limit 1",
-      [],
-      (err, results) => {
-        if (err) return console.log(err.message);
-        res.send(JSON.parse(JSON.stringify(results)));
-      }
-    );
-  });
-});
 
 // 删除文件夹
 

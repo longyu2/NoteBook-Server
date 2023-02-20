@@ -12,11 +12,9 @@ module.exports = {
   // 根据folder_id 查询 文章
   byFolderIdQueryArticle: (req) => {
     let folderid = req.query.folderid;
-    console.log(folderid)
     if (req.query.folderid == null || req.query.folderid == undefined) {
       folderid = -2   // 若请求头不含folderid，则查询全部文章
     }
-    console.log(folderid)
 
     if (folderid == -1) {
       // 若folderid == -1 ，则说明需要查询未分类文章

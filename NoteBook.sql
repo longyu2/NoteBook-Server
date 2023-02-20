@@ -33,8 +33,11 @@ create table folders(
 	folder_id int primary key auto_increment,
     folder_name nvarchar(100)
 );
--- insert into folders (folder_name )values ('测试文件夹');
-
+insert into folders (folder_name )values ('测试文件夹');
+insert into folders (folder_name )values ('测试文件夹2');
+insert into folders (folder_name )values ('测试文件夹3');
+insert into folders (folder_name )values ('测试文件夹4');
+insert into folders (folder_name )values ('测试文件夹5');
 -- 文件夹——文章表
 create table folder_notebook (
 	folder_id int not null ,
@@ -46,7 +49,7 @@ create table folder_notebook (
 -- insert into folder_notebook values (1,1);
 
 
-
+select * from Notebooklist order by createtime asc;
 
 -- 根据文件夹id查询文章
 -- select * from folder_notebook s1,notebooklist s2 where 
@@ -58,4 +61,4 @@ select  * from Notebooklist;
 
 -- 查询未分类的文章
 -- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );
-
+delete from folders  where folder_id = 1;
