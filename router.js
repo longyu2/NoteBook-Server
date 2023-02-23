@@ -37,12 +37,11 @@ router.post("/updateContent", function (req, res) {
   db.query(
     sql_str,
     [req.body.title, req.body.content, req.body.Notebookid],
-    (err, results) => {}
+    (err, results) => {
+    }
   );
   res.send("修改成功");
 });
-
-
 
 // 根据id删除
 router.post("/delContent", function (req, res) {
