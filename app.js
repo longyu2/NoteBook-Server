@@ -50,13 +50,14 @@ app.use("/v1", folders_router);
 
 let server;
 // 若启用https,则读取密钥和证书
-if (server_config.https) {
+if (server_config.https.verify) {
   const httpsOption = {
     key: fs.readFileSync(
-      "../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn.key"
+      server_config.https.ssl_key_address
     ),
     cert: fs.readFileSync(
-      "../ssl/note.misaka-mikoto.cn_nginx/note.misaka-mikoto.cn_bundle.crt"
+      server_config.https.ssl_crt_address
+      
     ),
   };
   server = https.createServer(httpsOption, app);
