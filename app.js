@@ -20,13 +20,13 @@ app.use(cors());
 
 // 根据配置项决定加载
 if (server_config.token_Verify === true) {
-  console.log("token验证已开启")
+  console.log("token验证已开启");
   app.use(
     expressJwt
       .expressjwt({
         secret: server_config.tokenKey, // 签名的密钥 或 PublicKey,
         algorithms: ["HS256"],
-        requestProperty: "user"
+        requestProperty: "user",
       })
       .unless({
         path: ["/v1/session", "/signup", "/testt"], // 指定路径不经过 Token 解析
@@ -39,8 +39,7 @@ const bodyParser = require("body-parser");
 // app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
-app.use(bodyParser.json({ limit: "100mb" }));//设置post body数据的大小
-
+app.use(bodyParser.json({ limit: "100mb" })); //设置post body数据的大小
 
 // 设置路由
 app.use("/v1", Router);
@@ -52,26 +51,20 @@ let server;
 // 若启用https,则读取密钥和证书
 if (server_config.https.verify) {
   const httpsOption = {
-    key: fs.readFileSync(
-      server_config.https.ssl_key_address
-    ),
-    cert: fs.readFileSync(
-      server_config.https.ssl_crt_address
-      
-    ),
+    key: fs.readFileSync(server_config.https.ssl_key_address),
+    cert: fs.readFileSync(server_config.https.ssl_crt_address),
   };
   server = https.createServer(httpsOption, app);
 } else {
   server = app;
 }
 
-
 // 捕获token 错误
 app.use(function (err, req, res, next) {
-  if (err.name === 'UnauthorizedError') {
-    res.status(401).send('invalid token')
+  if (err.name === "UnauthorizedError") {
+    res.status(401).send("invalid token");
   }
-})
+});
 
 server.listen(9999, () => {
   console.log("在线笔记本服务端已经启动");

@@ -32,15 +32,16 @@ router.post("/byIdSelContent", function (req, res) {
 
 // 修改文章
 router.post("/updateContent", function (req, res) {
+  console.log(req.body);
   let sql_str =
     "update Notebooklist set title=?,content=?,updatetime=now() where Notebookid = ?";
   db.query(
     sql_str,
     [req.body.title, req.body.content, req.body.Notebookid],
     (err, results) => {
+      res.send("修改成功");
     }
   );
-  res.send("修改成功");
 });
 
 // 根据id删除
@@ -65,8 +66,6 @@ router.get("/QueryFolder", function (req, res) {
     res.send(folders);
   });
 });
-
-
 
 // 删除文件夹
 
