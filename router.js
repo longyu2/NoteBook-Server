@@ -14,7 +14,7 @@ const server_config = JSON.parse(
 const db = mysql.createPool(server_config.mysql_setting);
 router.get("/getNotebookList", function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  let sql_str = "select * from Notebooklist";
+  let sql_str = "select * from Notebooklist order by Notebookid desc";
   db.query(sql_str, (err, results) => {
     if (err) return console.log(err.message);
     res.send(results);
