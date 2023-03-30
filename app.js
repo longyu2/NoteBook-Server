@@ -4,12 +4,15 @@ const https = require("https");
 const fs = require("fs");
 const app = express();
 
+var compression = require("compression");
+//尽量在其他中间件前使用compression
+app.use(compression());
+
 // 路由
 const Router = require("./router");
 const user_router = require("./Router/user");
 const articles_router = require("./Router/articles.js");
 const folders_router = require("./Router/folders");
-
 const expressJwt = require("express-jwt");
 
 // 读取配置文件，根据配置文件决定要加载的项
