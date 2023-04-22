@@ -50,6 +50,9 @@ module.exports = {
           return;
         }
         const data = JSON.parse(JSON.stringify(results));
+
+        // 对data里的字段进行裁剪 ，使其不要过长，占用带宽
+
         resolve({ status: "成功", data: data });
       });
     });
@@ -60,6 +63,9 @@ module.exports = {
     return db_promise
       .query("select * from Notebooklist order by createtime desc;", [])
       .then((data) => {
+        for (let i = 0; i < data.length; i++) {
+          data[i].content = data[i].content.substring(0, 16)
+        }
         return { status: "成功", data: data };
       });
   },
