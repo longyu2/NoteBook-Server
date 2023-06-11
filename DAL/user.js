@@ -18,18 +18,22 @@ module.exports = {
           reject(err);
           return;
         }
-        const token =
-          "Bearer " +
-          jwt.sign(
-            {
-              userid: results[0].userid,
-              admin: true,
-            },
-            server_config.tokenKey,
-            {
-              expiresIn: 3600 * 24 * 3,
-            }
-          );
+        let token;
+        if (results.length > 0) {
+          token =
+            "Bearer " +
+            jwt.sign(
+              {
+                userid: results[0].userid,
+                admin: true,
+              },
+              server_config.tokenKey,
+              {
+                expiresIn: 3600 * 24 * 3,
+              }
+            );
+        }
+
         console.log("df");
         if (results.length > 0) {
           resolve({ status: "成功", data: { token: token } });
@@ -38,5 +42,20 @@ module.exports = {
         }
       });
     }).catch(() => {});
+  },
+
+  UpdatePasswd: function (name, passwd) {
+    const sql_str = "update  userinfo set userpwd =? where username = ? ;";
+    return new Promise((resolve, reject) => {
+      db.query(sql_str, [passwd, name], (err, results) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+          return;
+        }
+
+        resolve({ status: "成功", data: "修改成功" });
+      });
+    });
   },
 };

@@ -12,7 +12,6 @@ module.exports = {
           reject(err);
           return;
         }
-        console.log(results);
         if (results.length == 0) {
           sql_str = "insert into folder_notebook values(?,?)";
           db.query(sql_str, [folderid, notebookid], (err, results) => {

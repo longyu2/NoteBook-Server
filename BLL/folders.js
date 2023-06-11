@@ -8,6 +8,8 @@ module.exports = {
 
   // 往文件夹添加文章
   FolderAddArticle: (req) => {
+    console.log("BLL");
+
     const folder_id = req.body.folder_id;
     const article_id = req.body.article_id;
     return DAL.FolderAddArticle(article_id, folder_id);
@@ -21,7 +23,6 @@ module.exports = {
   },
   // 删除文件夹
   deleteFolderById: (req) => {
-    console.log("sdds");
     const folder_id = req.query.folder_id;
     return DAL.deleteFolderById(folder_id);
   },

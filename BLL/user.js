@@ -5,4 +5,10 @@ module.exports = {
     const passwd = req.body.passwd;
     return DAL.login(name, passwd);
   },
+
+  UpdatePasswd: function (req) {
+    const name = req.body.username;
+    const passwd = req.body.passwd;
+    return DAL.UpdatePasswd(name, passwd);
+  },
 };

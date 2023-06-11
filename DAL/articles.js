@@ -64,7 +64,7 @@ module.exports = {
       .query("select * from Notebooklist order by createtime desc;", [])
       .then((data) => {
         for (let i = 0; i < data.length; i++) {
-          data[i].content = data[i].content.substring(0, 16)
+          data[i].content = data[i].content.substring(0, 16);
         }
         return { status: "成功", data: data };
       });
