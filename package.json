@@ -21,6 +21,7 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1",
+    "nodemailer": "^6.9.3",
     "prettier": "^2.8.3"
   }
 }

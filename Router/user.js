@@ -9,6 +9,13 @@ router.post("/session", (req, res) => {
   });
 });
 
+// 注册
+router.post("/user", (req, res) => {
+  BLL.Regist(req).then((data) => {
+    res.send(data);
+  });
+});
+
 // 修改密码
 router.post("/passwd", (req, res) => {
   BLL.UpdatePasswd(req).then((data) => {

@@ -8,7 +8,8 @@ drop table if exists userinfo;
 create table userinfo(
 userid int primary key auto_increment,
 username varchar(20) unique,
-userpwd varchar(20)
+userpwd varchar(20),
+email varchar(200)
 );
 insert into userinfo (username,userpwd) values('admin','123456');
 insert into userinfo (username,userpwd) values('user2','123456');
