@@ -25,11 +25,11 @@ module.exports = {
   },
 
   // 根据文件夹id查询文章
-  byFolderIdQueryArticle: function (folderid) {
+  byFolderIdQueryArticle: function (folderid, userid) {
     let sql =
-      "select * from folder_notebook s1,Notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ? order by createtime desc";
+      "select * from folder_notebook s1,Notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ? and s2.authorid = ? order by createtime desc";
     return new Promise((resolve, reject) => {
-      db.query(sql, [folderid], (err, result) => {
+      db.query(sql, [folderid, userid], (err, result) => {
         if (err) {
           reject(err);
           return;
@@ -40,11 +40,11 @@ module.exports = {
   },
 
   // 查询未分类的文章
-  SelUnclassifiedArticle: function () {
+  SelUnclassifiedArticle: function (userid) {
     const sql_str =
-      "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook ) order by createtime desc;";
+      "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook ) and authorid = ?  order by createtime desc;";
     return new Promise((resolve, reject) => {
-      db.query(sql_str, (err, results) => {
+      db.query(sql_str, [userid], (err, results) => {
         if (err) {
           reject(err);
           return;
@@ -59,9 +59,12 @@ module.exports = {
   },
 
   // 查询所有文章
-  SelAllArticle: function () {
+  SelAllArticle: function (userid) {
     return db_promise
-      .query("select * from Notebooklist order by createtime desc;", [])
+      .query(
+        "select * from Notebooklist where authorid = ? order by createtime desc;",
+        [userid]
+      )
       .then((data) => {
         for (let i = 0; i < data.length; i++) {
           data[i].content = data[i].content.substring(0, 16);
@@ -73,10 +76,10 @@ module.exports = {
   // 增加文章
   AddArticle: function (userid, folderid) {
     let sql_str =
-      "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (1,'',now(),now(),'')";
+      "insert into Notebooklist(authorid,title,createtime,updatetime,content)  values (?,'',now(),now(),'')";
     // 调用3级promise 执行三条语句
     return db_promise
-      .query(sql_str, [])
+      .query(sql_str, [userid])
       .then((data) => {
         sql_str =
           "select  * from Notebooklist order by  Notebookid desc limit 1 ;";

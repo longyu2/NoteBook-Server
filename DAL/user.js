@@ -36,9 +36,18 @@ module.exports = {
             );
         }
 
-        console.log("df");
         if (results.length > 0) {
-          resolve({ status: "成功", data: { token: token } });
+          console.log(results[0]);
+          resolve({
+            status: "成功",
+            data: {
+              token: token,
+              user: {
+                userId: results[0].userid,
+                userName: results[0].username,
+              },
+            },
+          });
         } else {
           resolve({ status: "失败", data: { error_status: "账号或密码错误" } });
         }

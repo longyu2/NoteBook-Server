@@ -1,15 +1,20 @@
 const DAL = require("../DAL/folders.js");
 module.exports = {
+  queryFolder: (req) => {
+    console.log(req.user);
+    const userid = req.user.userid;
+    return DAL.queryFolder(userid);
+  },
   // createFolder创建文件夹
   createFolder: (req) => {
+    const userid = req.user.userid;
     const folder_name = req.body.folder_name;
-    return DAL.createFolder(folder_name);
+    return DAL.createFolder(folder_name, userid);
   },
 
   // 往文件夹添加文章
   FolderAddArticle: (req) => {
     console.log("BLL");
-
     const folder_id = req.body.folder_id;
     const article_id = req.body.article_id;
     return DAL.FolderAddArticle(article_id, folder_id);

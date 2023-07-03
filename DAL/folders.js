@@ -2,6 +2,12 @@ const db = require("./db.js");
 const db_promise = require("./db_promise.js");
 
 module.exports = {
+  // 查询文件夹
+  queryFolder: (userid) => {
+    let sql_str = "select * from folders where userid = ?";
+    return db_promise.query(sql_str, [userid]);
+  },
+
   // 往文件夹添加文章
   FolderAddArticle: (notebookid, folderid) => {
     let sql_str = "select * from folder_notebook where notebookid =?;";
@@ -71,10 +77,10 @@ module.exports = {
   },
 
   // 创建文件夹
-  createFolder: (folder_name) => {
-    let sql_str = "insert into  folders  (folder_name) values (?)";
+  createFolder: (folder_name, user_id) => {
+    let sql_str = "insert into  folders  (folder_name,userid) values (?,?)";
 
-    return db_promise.query(sql_str, [folder_name]).then((data) => {
+    return db_promise.query(sql_str, [folder_name, user_id]).then((data) => {
       sql_str = "select * from  folders order by folder_id desc limit 1";
       return db_promise.query(sql_str, []);
     });

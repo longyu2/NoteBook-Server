@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const BLL = require("../BLL/folders");
 
+//查询文件夹
+router.get("/folders", function (req, res) {
+  BLL.queryFolder(req).then((data) => {
+    console.log(data);
+    res.send(data);
+  });
+});
+
 //新建文件夹
 router.post("/folders", function (req, res) {
   BLL.createFolder(req).then((data) => res.send(data));

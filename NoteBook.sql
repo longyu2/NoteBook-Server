@@ -31,6 +31,7 @@ foreign key(authorid) references userinfo(userid)
 
 -- 文件夹表
 create table folders(
+    userid int references userinfo(userid),
 	folder_id int primary key auto_increment,
     folder_name nvarchar(100)
 );

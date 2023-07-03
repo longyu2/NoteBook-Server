@@ -55,18 +55,6 @@ router.post("/delContent", function (req, res) {
   res.send("删除成功");
 });
 
-//查询文件夹
-router.get("/QueryFolder", function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-
-  let sql_str = "select * from folders";
-  db.query(sql_str, [], (err, results) => {
-    if (err) return console.log(err.message);
-    const folders = JSON.parse(JSON.stringify(results));
-    res.send(folders);
-  });
-});
-
 // 删除文件夹
 
 // 从json文件导入文章

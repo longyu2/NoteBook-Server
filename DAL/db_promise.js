@@ -12,6 +12,7 @@ module.exports = {
           reject(err);
           return;
         }
+
         resolve(JSON.parse(JSON.stringify(results)));
       });
     });
