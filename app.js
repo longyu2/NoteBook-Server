@@ -45,7 +45,6 @@ app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.use(bodyParser.json({ limit: "100mb" })); //设置post body数据的大小
 
 // 设置路由
-app.use("/v1", Router);
 app.use("/v1", user_router);
 app.use("/v1", articles_router);
 app.use("/v1", folders_router);
@@ -70,5 +69,5 @@ app.use(function (err, req, res, next) {
 });
 
 server.listen(9999, () => {
-  console.log("在线笔记本服务端已经启动");
+  console.log("server is running in 9999");
 });

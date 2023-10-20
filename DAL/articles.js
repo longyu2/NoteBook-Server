@@ -19,6 +19,7 @@ module.exports = {
     folder_notebook.forEach((element) => {
       db_promise.query(sql_str, [element.folder_id, element.notebookid]);
     });
+
     return new Promise((resolve, reject) => {
       resolve("成功");
     });
@@ -124,5 +125,31 @@ module.exports = {
           return { Notebooklist: data, folder_notebook: data2 };
         });
     });
+  },
+
+  // 根据id查询文章
+  ByIdGetArticle: (article_id) => {
+    let sql_str = "select * from Notebooklist where Notebookid =?";
+    return db_promise.query(sql_str, [article_id]);
+  },
+
+  DeleteArticles: (article_id) => {
+    // 如果该文章存在于文件夹中，先删除 folder_article 中的记录，否则会受到外键约束
+    let sql_str = "delete from folder_notebook where Notebookid = ?";
+    return db_promise.query(sql_str, [article_id]).then((data) => {
+      sql_str = "delete from Notebooklist where Notebookid = ?;";
+      return db_promise.query(sql_str, [article_id]);
+    });
+  },
+
+  // 修改文章
+  UpdateArticle: (title, content, article_id) => {
+    let sql_str =
+      "update Notebooklist set title=?,content=?,updatetime=now() where Notebookid = ?";
+    return db_promise
+      .query(sql_str, [title, content, article_id])
+      .then((data) => {
+        return "修改成功";
+      });
   },
 };

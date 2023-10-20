@@ -13,6 +13,7 @@ email varchar(200)
 );
 insert into userinfo (username,userpwd) values('admin','123456');
 insert into userinfo (username,userpwd) values('user2','123456');
+
 -- --文章表
 drop table if exists Notebooklist;
 create table Notebooklist(
@@ -24,10 +25,8 @@ updatetime datetime(0) not null,
 content text,
 foreign key(authorid) references userinfo(userid)
 );
--- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
--- (1,'asp。net教程',now(),now(),'我是content1');
--- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
--- (2,'测试',now(),now(),'我是content2');
+
+
 
 -- 文件夹表
 create table folders(
@@ -40,6 +39,7 @@ insert into folders (folder_name )values ('测试文件夹2');
 insert into folders (folder_name )values ('测试文件夹3');
 insert into folders (folder_name )values ('测试文件夹4');
 insert into folders (folder_name )values ('测试文件夹5');
+
 -- 文件夹——文章表
 create table folder_notebook (
 	folder_id int not null ,
@@ -63,4 +63,4 @@ select  * from Notebooklist;
 
 -- 查询未分类的文章
 -- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );
-delete from folders  where folder_id = 1;
+

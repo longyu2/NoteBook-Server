@@ -23,4 +23,9 @@ router.post("/passwd", (req, res) => {
   });
 });
 
+// 测试token是否有效
+router.get("/testToken", (req, res) => {
+  res.send("success");
+});
+
 module.exports = router;
