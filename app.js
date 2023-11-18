@@ -23,7 +23,6 @@ app.use(cors());
 
 // 根据配置项决定加载
 if (server_config.token_Verify === true) {
-  console.log("token验证已开启");
   app.use(
     expressJwt
       .expressjwt({

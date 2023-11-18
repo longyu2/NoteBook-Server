@@ -10,9 +10,10 @@ module.exports = {
   },
   // 根据json 上传文章
   ByJsonSaveArticle: (req) => {
-    let Notebooklist = req.body.Notebooklist;
-    let folder_notebook = req.body.folder_notebook;
-    return DAL.ByJsonSaveArticle(Notebooklist, folder_notebook);
+    let Notebooklist = req.body.Notebooklist; // 存储着所有需存储的文章的对象数组
+    let folderName = req.body.folderName; // 存储着这一次所有文章的文件夹名
+    let user_id = req.user.userid;
+    return DAL.ByJsonSaveArticle(Notebooklist, folderName, user_id);
   },
 
   // 根据folder_id 查询 文章
@@ -20,7 +21,6 @@ module.exports = {
     let folderid = req.query.folderid;
     let userid = req.user.userid;
     if (req.query.folderid == null || req.query.folderid == undefined) {
-      console.log("req.query.folderid == undefine");
       folderid = -2; // 若请求头不含folderid，则查询全部文章
     }
 
@@ -37,14 +37,11 @@ module.exports = {
 
   // 新增文章
   AddArticle: function (req) {
-    console.log(req.user);
     const folderid = req.body.folderid;
     let userid = req.user.userid;
 
     if (req.user === undefined) {
       userid = 1;
-      console.log("usd");
-      console.log(userid);
     }
 
     return DAL.AddArticle(userid, folderid);

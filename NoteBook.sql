@@ -13,7 +13,6 @@ email varchar(200)
 );
 insert into userinfo (username,userpwd) values('admin','123456');
 insert into userinfo (username,userpwd) values('user2','123456');
-
 -- --文章表
 drop table if exists Notebooklist;
 create table Notebooklist(
@@ -25,20 +24,21 @@ updatetime datetime(0) not null,
 content text,
 foreign key(authorid) references userinfo(userid)
 );
+insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+(1,'第一条测试数据','2020-05-20 22:22:22',now(),'我是content1');
+-- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
+-- (2,'测试',now(),now(),'我是content2');
 
-
+select * from Notebooklist;
 
 -- 文件夹表
 create table folders(
-    userid int references userinfo(userid),
+    userid int not null references userinfo(userid),
 	folder_id int primary key auto_increment,
-    folder_name nvarchar(100)
+    folder_name nvarchar(100) unique not null
 );
-insert into folders (folder_name )values ('测试文件夹');
-insert into folders (folder_name )values ('测试文件夹2');
-insert into folders (folder_name )values ('测试文件夹3');
-insert into folders (folder_name )values ('测试文件夹4');
-insert into folders (folder_name )values ('测试文件夹5');
+insert into folders (userid,folder_name )values (1,'测试文件夹');
+select * from  folders;
 
 -- 文件夹——文章表
 create table folder_notebook (
@@ -48,14 +48,17 @@ create table folder_notebook (
     foreign key(Notebookid) references Notebooklist(Notebookid),
     primary key(folder_id,notebookid)
 );
--- insert into folder_notebook values (1,1);
+
+select * from folder_notebook ;
 
 
-select * from Notebooklist order by createtime asc;
+
+
+select * from Notebooklist order by createtime asc ;
 
 -- 根据文件夹id查询文章
--- select * from folder_notebook s1,notebooklist s2 where 
--- s1.notebookid = s2.Notebookid and s1.folder_id = 1;
+ select * from folder_notebook s1,notebooklist s2 where 
+s1.notebookid = s2.Notebookid and s1.folder_id = 1;
 
 select * from folders;
 select * from folder_notebook;
@@ -63,4 +66,9 @@ select  * from Notebooklist;
 
 -- 查询未分类的文章
 -- select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook );
+delete from folders  where folder_id = 1;
+
+
+
+select * from userinfo;
 

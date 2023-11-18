@@ -13,7 +13,6 @@ const transporter = nodemailer.createTransport({
 });
 
 async function main(message) {
-  console.log("走到main");
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: `${message.fromName} <longyu@violet-evergarden.net>`, // sender address
@@ -22,5 +21,4 @@ async function main(message) {
     text: message.text, // plain text body
     html: message.html, // html body
   });
-  console.log("Message sent: %s", info.messageId);
 }

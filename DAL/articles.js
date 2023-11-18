@@ -2,27 +2,52 @@ const db = require("./db.js");
 const db_promise = require("./db_promise");
 module.exports = {
   // 根据json上传文章
-  ByJsonSaveArticle: (Notebooklist, folder_notebook) => {
-    // 这里未做校验，上传时如果有notebookid 与数据库中已经存在的notebookid 冲突，程序会崩溃。所以此脚本仅仅可用于上传至空的数据库中
-    let sql_str = "insert into Notebooklist values(?,?,?,?,?,?);";
-    Notebooklist.forEach((element) => {
-      db_promise.query(sql_str, [
-        element.Notebookid,
-        element.authorid,
-        element.title,
-        element.createtime,
-        element.updatetime,
-        element.content,
-      ]);
-    });
-    sql_str = "insert into folder_notebook values(?,?);";
-    folder_notebook.forEach((element) => {
-      db_promise.query(sql_str, [element.folder_id, element.notebookid]);
-    });
+  ByJsonSaveArticle: (Notebooklist, folderName, user_id) => {
+    // 新建一个文件夹进行存储这些文章
+    let sql_str = "insert into folders (userid,folder_name )values (?,?);";
 
-    return new Promise((resolve, reject) => {
-      resolve("成功");
-    });
+    // 第一次查询，promise 链的入口，新建文件夹
+    return (
+      db_promise
+        .query(sql_str, [user_id, folderName])
+        // 第二次查询，存储所有文章
+        .then((data) => {
+          let sql_str2 =
+            "insert into Notebooklist (Notebookid,authorid,title,createtime,updatetime,content) values(?,?,?,?,?,?);";
+          for (let i = 0; i < Notebooklist.length; i++) {
+            // 进行文章的插入
+            const Promise_article = db_promise.query(sql_str2, [
+              Notebooklist[i].notebookid,
+              Notebooklist[i].authorid,
+              Notebooklist[i].title,
+              Notebooklist[i].createtime,
+              Notebooklist[i].updatetime,
+              Notebooklist[i].content,
+            ]);
+
+            if (i == Notebooklist.length - 1) {
+              return Promise_article;
+            }
+          }
+        })
+        .then((data) => {
+          // 第三次，开始为文章添加文件夹信息
+          let sql_str3 =
+            "insert into folder_notebook values ((select folder_id from folders where folder_name = ?),?);";
+          let index = 0;
+
+          for (let j = 0; j < Notebooklist.length; j++) {
+            let Promise_article_folder = db_promise
+              .query(sql_str3, [folderName, Notebooklist[j].notebookid])
+              .then((data) => {
+                index++;
+              });
+            if (j == Notebooklist.length - 1) {
+              return "成功";
+            }
+          }
+        })
+    );
   },
 
   // 根据文件夹id查询文章
@@ -89,7 +114,6 @@ module.exports = {
       .then((data) => {
         // 对于无文件夹的新建，无需为folder_article表插入记录
         if (folderid == -1 || folderid == -2) {
-          console.log("无文件夹");
           return {
             status: "成功",
             data: {

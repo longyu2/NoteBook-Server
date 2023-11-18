@@ -5,7 +5,6 @@ const BLL = require("../BLL/folders");
 //查询文件夹
 router.get("/folders", function (req, res) {
   BLL.queryFolder(req).then((data) => {
-    console.log(data);
     res.send(data);
   });
 });

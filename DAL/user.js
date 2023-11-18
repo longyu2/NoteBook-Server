@@ -16,7 +16,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.query(sql_str, [name, passwd], (err, results) => {
         if (err) {
-          console.log(err);
           reject(err);
           return;
         }
@@ -37,7 +36,6 @@ module.exports = {
         }
 
         if (results.length > 0) {
-          console.log(results[0]);
           resolve({
             status: "成功",
             data: {
@@ -57,9 +55,6 @@ module.exports = {
 
   // 注册
   regist: function (name, passwd, email, verify) {
-    console.log(verify);
-    console.log(passwd);
-
     // verify 为空，发送验证码
     if (verify == "") {
       let X = "";
@@ -89,16 +84,13 @@ module.exports = {
             text: message.text, // plain text body
             html: message.html, // html body
           });
-          console.log("Message sent: %s", info.messageId);
           resolve("成功");
         }
-        main().catch(console.error);
+        main();
       });
     }
     // verify 不为空，检验验证码是否正确
     else {
-      console.log(verify_code.code);
-
       if (verify == verify_code.code && name == verify_code.name) {
         let sql_str =
           "insert into userinfo (username,userpwd,email) values(?,?,?)";
@@ -119,7 +111,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.query(sql_str, [passwd, name], (err, results) => {
         if (err) {
-          console.log(err);
           reject(err);
           return;
         }
