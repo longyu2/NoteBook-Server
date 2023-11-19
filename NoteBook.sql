@@ -26,8 +26,7 @@ foreign key(authorid) references userinfo(userid)
 );
 insert into Notebooklist(authorid,title,createtime,updatetime,content) values
 (1,'第一条测试数据','2020-05-20 22:22:22',now(),'我是content1');
--- insert into Notebooklist(authorid,title,createtime,updatetime,content) values
--- (2,'测试',now(),now(),'我是content2');
+
 
 select * from Notebooklist;
 

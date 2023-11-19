@@ -20,6 +20,7 @@ const server_config = JSON.parse(fs.readFileSync("config/server-config.json"));
 
 // 默认加载项
 app.use(cors());
+app.use(express.static("public"));
 
 // 根据配置项决定加载
 if (server_config.token_Verify === true) {

@@ -2,3 +2,4 @@ node_modules
 server-config.json
 server-config_copy.json
 dist.js
+public/
