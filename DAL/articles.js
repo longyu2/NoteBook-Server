@@ -99,6 +99,19 @@ module.exports = {
       });
   },
 
+  // 修改创建时间
+  UpdateCreatetime:(notebookId,newCreatetime)=>{
+    let sql_str = "update Notebooklist set createtime = ? where Notebookid = ? "
+    return db_promise.query(sql_str,[newCreatetime,notebookId]).then(data=>{
+      return {
+        status:"200",
+        data:`id为${notebookId}的文章的创建时间已经修改为${newCreatetime}`
+      }
+    })
+  
+  },
+
+
   // 增加文章
   AddArticle: function (userid, folderid) {
     let sql_str =

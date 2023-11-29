@@ -69,4 +69,9 @@ router.post("/upload", (req, res) => {
   });
 });
 
+// 修改创建日期
+router.put("/createtime", function (req, res) {
+  BLL.UpdateCreatetime(req).then((data) => res.send(data));
+});
+
 module.exports = router;
