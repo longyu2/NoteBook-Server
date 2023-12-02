@@ -75,9 +75,9 @@ module.exports = {
     return DAL.UpdateArticle(title, content, article_id);
   },
 
-  UpdateCreatetime:(req)=>{
-    const notebookId = req.body.notebookId
-    const newCreatetime = req.body.newCreatetime
-    return DAL.UpdateCreatetime(notebookId,newCreatetime);
-  }
+  UpdateCreatetime: (req) => {
+    const notebookId = req.body.notebookId;
+    const newCreatetime = req.body.newCreatetime;
+    return DAL.UpdateCreatetime(notebookId, newCreatetime);
+  },
 };

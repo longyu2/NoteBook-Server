@@ -3,6 +3,9 @@ const router = express.Router();
 const BLL = require("../BLL/articles");
 const multiparty = require("multiparty");
 const fs = require("fs");
+
+const marked = require("marked");
+
 // 获取文章
 router.get("/articles", (req, res) => {
   BLL.byFolderIdQueryArticle(req).then((data) => res.send(data));
@@ -72,6 +75,51 @@ router.post("/upload", (req, res) => {
 // 修改创建日期
 router.put("/createtime", function (req, res) {
   BLL.UpdateCreatetime(req).then((data) => res.send(data));
+});
+
+// 将文章生成可以暴露给外界访问的html
+// 修改创建日期
+router.put("/pubarticle/:aid", function (req, res) {
+  // 借助bll查询
+  BLL.ByIdGetArticle(req).then((data) => {
+    const article = data[0];
+    let document = marked.parse(`# ${article.title}\n${article.content}`);
+    let str = `<!DOCTYPE html>
+    <html lang = "en" >
+        <head>
+            <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${article.title}</title>
+                    <style>
+                    table{
+                      border:0.25px solid gray;
+                      border-spacing:0px;
+                  }
+                  td,th{
+              
+                      border:0.25px solid gray;
+                  }
+                      #app{
+                        width:60%;
+                        margin:auto;
+                        background:#eee;
+                        padding:50px;
+                      }
+                    </style>
+                </head>
+                <body>
+                    <div id="app">
+                    ${document}
+                    </div>
+                </body>
+      </html>`;
+
+    fs.writeFileSync(`public/pubhtml/${req.params.aid}.html`, str);
+    res.send({
+      status: "200",
+      url: `pubhtml/${req.params.aid}.html`,
+    });
+  });
 });
 
 module.exports = router;

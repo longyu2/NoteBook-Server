@@ -9,7 +9,6 @@ var compression = require("compression");
 app.use(compression());
 
 // 路由
-const Router = require("./router");
 const user_router = require("./Router/user");
 const articles_router = require("./Router/articles.js");
 const folders_router = require("./Router/folders");
@@ -32,7 +31,7 @@ if (server_config.token_Verify === true) {
         requestProperty: "user",
       })
       .unless({
-        path: ["/v1/session", "/v1/user"], // 指定路径不经过 Token 解析
+        path: [/^\/v1\/pubarticle.*/, "/v1/session", "/v1/user"], // 指定路径不经过 Token 解析
       })
   );
 }
