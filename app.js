@@ -3,6 +3,7 @@ const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
 const app = express();
+const dayjs = require("dayjs");
 
 var compression = require("compression");
 //尽量在其他中间件前使用compression
@@ -42,6 +43,13 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 app.use(bodyParser.json({ limit: "100mb" })); //设置post body数据的大小
+
+// 读取请求信息中间件
+app.use(function (req, res, next) {
+  const now = dayjs();
+  console.log(now.format("YYYY/MM/DD HH:mm:ss"), "    ", req.url);
+  next();
+});
 
 // 设置路由
 app.use("/v1", user_router);

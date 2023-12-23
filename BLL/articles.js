@@ -3,6 +3,13 @@ const DAL = require("../DAL/articles");
 const articles = require("../DAL/articles");
 
 module.exports = {
+  // 搜索功能
+  Search: async (req) => {
+    const userid = req.user.userid;
+    const queryKey = req.params.key;
+    return await DAL.Search({ queryKey, userid });
+  },
+
   // 根据id查询文章
   ByIdGetArticle: (req) => {
     const article_id = req.params.aid;
@@ -74,7 +81,7 @@ module.exports = {
     ];
     return DAL.UpdateArticle(title, content, article_id);
   },
-
+  // 更改创建时间
   UpdateCreatetime: (req) => {
     const notebookId = req.body.notebookId;
     const newCreatetime = req.body.newCreatetime;

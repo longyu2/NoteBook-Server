@@ -1,6 +1,13 @@
 const db = require("./db.js");
 const db_promise = require("./db_promise");
 module.exports = {
+  // 搜索
+  Search: async ({ userid, queryKey }) => {
+    const sql_str = `select * from Notebooklist where (title like '%${queryKey}%' or content like '%${queryKey}%') and authorid ='${userid}';`;
+
+    return db_promise.query(sql_str, []);
+  },
+
   // 根据json上传文章
   ByJsonSaveArticle: (Notebooklist, folderName, user_id) => {
     // 新建一个文件夹进行存储这些文章

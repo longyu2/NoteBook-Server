@@ -71,3 +71,5 @@ delete from folders  where folder_id = 1;
 
 select * from userinfo;
 
+-- 搜索功能
+

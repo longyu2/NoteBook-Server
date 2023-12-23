@@ -2,9 +2,18 @@ const express = require("express");
 const router = express.Router();
 const BLL = require("../BLL/articles");
 const multiparty = require("multiparty");
+
 const fs = require("fs");
 
 const marked = require("marked");
+
+// 搜索功能
+// 获取文章
+router.get("/search/:key", async (req, res) => {
+  // send 查询来的信息
+
+  res.send(await BLL.Search(req));
+});
 
 // 获取文章
 router.get("/articles", (req, res) => {
