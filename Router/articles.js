@@ -10,42 +10,40 @@ const marked = require("marked");
 // 搜索功能
 // 获取文章
 router.get("/search/:key", async (req, res) => {
-  // send 查询来的信息
-
   res.send(await BLL.Search(req));
 });
 
 // 获取文章
-router.get("/articles", (req, res) => {
-  BLL.byFolderIdQueryArticle(req).then((data) => res.send(data));
+router.get("/articles", async (req, res) => {
+  res.send(await BLL.byFolderIdQueryArticle(req));
 });
 
 // 新建文章
-router.post("/articles", (req, res) => {
-  BLL.AddArticle(req).then((data) => res.send(data));
+router.post("/articles", async (req, res) => {
+  res.send(await BLL.AddArticle(req));
 });
-router.get("/backups", (req, res) => {
-  BLL.Output(req).then((data) => res.send(data));
+router.get("/backups", async (req, res) => {
+  res.send(await BLL.Output(req));
 });
 
 // 根据id查询文章信息
-router.get("/article/:aid", function (req, res) {
-  BLL.ByIdGetArticle(req).then((data) => res.send(data));
+router.get("/article/:aid", async (req, res) => {
+  res.send(await BLL.ByIdGetArticle(req));
 });
 
 // 从json文件导入文章
-router.post("/ByJsonSaveArticle", (req, res) => {
-  BLL.ByJsonSaveArticle(req).then((data) => res.send(data));
+router.post("/ByJsonSaveArticle", async (req, res) => {
+  res.send(await BLL.ByJsonSaveArticle(req));
 });
 
 // 根据id数组删除
-router.delete("/articles", function (req, res) {
-  BLL.DeleteArticles(req).then((data) => res.send(data));
+router.delete("/articles", async (req, res) => {
+  res.send(await BLL.DeleteArticles(req));
 });
 
 // 修改文章
-router.put("/article", function (req, res) {
-  BLL.UpdateArticle(req).then((data) => res.send(data));
+router.put("/article", async (req, res) => {
+  res.send(await BLL.UpdateArticle(req));
 });
 
 //上传文件
@@ -82,13 +80,13 @@ router.post("/upload", (req, res) => {
 });
 
 // 修改创建日期
-router.put("/createtime", function (req, res) {
-  BLL.UpdateCreatetime(req).then((data) => res.send(data));
+router.put("/createtime", async (req, res) => {
+  res.send(await BLL.UpdateCreatetime(req));
 });
 
 // 将文章生成可以暴露给外界访问的html
 // 修改创建日期
-router.put("/pubarticle/:aid", function (req, res) {
+router.put("/pubarticle/:aid", (req, res) => {
   // 借助bll查询
   BLL.ByIdGetArticle(req).then((data) => {
     const article = data[0];
