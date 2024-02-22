@@ -7,6 +7,11 @@ module.exports = {
 
     return db_promise.query(sql_str, []);
   },
+  // 查询字数
+  wordCount: async (userid) => {
+    const sql_str = `select * from Notebooklist where  authorid ='${userid}';`;
+    return db_promise.query(sql_str, []);
+  },
 
   // 根据json上传文章
   ByJsonSaveArticle: (Notebooklist, folderName, user_id) => {
