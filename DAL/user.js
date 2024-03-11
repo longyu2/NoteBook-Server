@@ -69,6 +69,23 @@ module.exports = {
         subject: "注册验证码",
         text: "验证码0000",
         html: `
+
+        <table align="center" border="1" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
+
+        　<tr>
+        　　<td> Row 1 </td>
+        　</tr>
+        
+        　<tr>
+        　　<td> Row 2 </td>
+        　</tr>
+        
+        　<tr>
+        　　<td> Row 3 </td>
+        　</tr>
+        
+        </table>
+
         您好，${name},请输入下面的验证码来完成注册。如果不是您本人操作，请忽略此消息。
         <br/>
         <b>${X}</b>`,
@@ -78,7 +95,7 @@ module.exports = {
         async function main() {
           // send mail with defined transport object
           const info = await transporter.sendMail({
-            from: `${message.fromName} <longyu@violet-evergarden.net>`, // sender address
+            from: `${message.fromName} <litong@misaka-mikoto.cn>`, // sender address
             to: message.toAdress, // list of receivers
             subject: message.subject, // Subject line
             text: message.text, // plain text body
@@ -126,13 +143,15 @@ const nodemailer = require("nodemailer");
 const { resolve } = require("path");
 const db_promise = require("./db_promise.js");
 
+
 const transporter = nodemailer.createTransport({
   host: "smtp.exmail.qq.com",
   port: 465,
   secure: true,
   auth: {
     // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-    user: "longyu@violet-evergarden.net",
-    pass: "20010506longyuL.",
+    user: "litong@misaka-mikoto.cn",
+    // pass: "6MDitjJu7fybi5te",
+    pass: "HRMk6Xb69TnikJ8J",
   },
 });
