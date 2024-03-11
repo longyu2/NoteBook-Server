@@ -69,24 +69,7 @@ module.exports = {
         subject: "注册验证码",
         text: "验证码0000",
         html: `
-
-        <table align="center" border="1" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
-
-        　<tr>
-        　　<td> Row 1 </td>
-        　</tr>
-        
-        　<tr>
-        　　<td> Row 2 </td>
-        　</tr>
-        
-        　<tr>
-        　　<td> Row 3 </td>
-        　</tr>
-        
-        </table>
-
-        您好，${name},请输入下面的验证码来完成注册。如果不是您本人操作，请忽略此消息。
+         您好，${name},请输入下面的验证码来完成注册。如果不是您本人操作，请忽略此消息。
         <br/>
         <b>${X}</b>`,
       };
@@ -142,7 +125,6 @@ module.exports = {
 const nodemailer = require("nodemailer");
 const { resolve } = require("path");
 const db_promise = require("./db_promise.js");
-
 
 const transporter = nodemailer.createTransport({
   host: "smtp.exmail.qq.com",
