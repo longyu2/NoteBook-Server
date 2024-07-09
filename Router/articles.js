@@ -95,29 +95,37 @@ router.put("/pubarticle/:aid", (req, res) => {
     <html lang = "en" >
         <head>
             <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+
+                <meta name="color-scheme" content="light dark">
+                <link rel="stylesheet" href="github-markdown.css">
                     <title>${article.title}</title>
+                      <style>
+                        body {
+                            box-sizing: border-box;
+                            min-width: 200px;
+                            max-width: 980px;
+                            margin: 0 auto;
+                            padding: 45px;
+                        }
+            
+                        @media (prefers-color-scheme: dark) {
+                            body {
+                                background-color: #0d1117;
+                            }
+                        }
+                    </style>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
                     <style>
-                    table{
-                      border:0.25px solid gray;
-                      border-spacing:0px;
-                  }
-                  td,th{
-              
-                      border:0.25px solid gray;
-                  }
-                      #app{
-                        width:60%;
-                        margin:auto;
-                        background:#eee;
-                        padding:50px;
-                      }
+                        .github-fork-ribbon:before {
+                            background-color: #121612;
+                        }
                     </style>
                 </head>
                 <body>
-                    <div id="app">
+                         <article class="markdown-body">
                     ${document}
-                    </div>
+                    </article>
                 </body>
       </html>`;
 
