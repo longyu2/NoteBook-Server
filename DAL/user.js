@@ -20,6 +20,7 @@ module.exports = {
           return;
         }
         let token;
+
         if (results.length > 0) {
           token =
             "Bearer " +
