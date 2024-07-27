@@ -68,13 +68,7 @@ router.post("/upload", (req, res) => {
         } else {
           imgUrlStr += file.path.replace("public/", "");
         }
-        imgUrlStr += "\n";
       }
-
-      // 存到数据库
-      db_promise.query(
-        `insert into images (Notebookid,img_address) values ( ${26} ,'${imgUrlStr}');`
-      );
 
       res.send({
         status: 200,

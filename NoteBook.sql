@@ -58,7 +58,7 @@ create table folder_notebook (
 create table  images (
     notebookid int not null,
     img_id int not null,
-    img_address text,
+    img_path text,
     foreign key(notebookid) references articles(notebookid),
     primary key img_id
 );

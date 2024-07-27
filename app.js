@@ -13,6 +13,7 @@ app.use(compression());
 const user_router = require("./Router/user");
 const articles_router = require("./Router/articles.js");
 const folders_router = require("./Router/folders");
+const images_router = require("./Router/images");
 const expressJwt = require("express-jwt");
 
 // 读取配置文件，根据配置文件决定要加载的项
@@ -55,6 +56,7 @@ app.use(function (req, res, next) {
 app.use("/v1", user_router);
 app.use("/v1", articles_router);
 app.use("/v1", folders_router);
+app.use("/v1", images_router);
 
 let server;
 // 若启用https,则读取密钥和证书
