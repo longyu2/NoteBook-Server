@@ -6,6 +6,7 @@ const multiparty = require("multiparty");
 const fs = require("fs");
 
 const marked = require("marked");
+const db_promise = require("../DAL/db_promise");
 
 // 搜索功能
 // 获取文章
@@ -69,6 +70,11 @@ router.post("/upload", (req, res) => {
         }
         imgUrlStr += "\n";
       }
+
+      // 存到数据库
+      db_promise.query(
+        `insert into images (Notebookid,img_address) values ( ${26} ,'${imgUrlStr}');`
+      );
 
       res.send({
         status: 200,
