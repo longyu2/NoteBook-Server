@@ -202,7 +202,7 @@ module.exports = {
           `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`
         ); //删除图片文件
       } catch (err) {
-        console.err(err);
+        console.error(err);
       }
     }
 
