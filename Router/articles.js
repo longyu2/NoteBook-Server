@@ -7,6 +7,7 @@ const fs = require("fs");
 
 const marked = require("marked");
 const db_promise = require("../DAL/db_promise");
+const { log } = require("console");
 
 // 搜索功能
 // 获取文章
@@ -47,9 +48,17 @@ router.put("/article", async (req, res) => {
   res.send(await BLL.UpdateArticle(req));
 });
 
-//上传文件
+//上传图片
 router.post("/upload", (req, res) => {
-  let form = new multiparty.Form({ uploadDir: "./public/upload" });
+  let userId = req.user.userid  // 得到userid
+
+  // 如果文件夹不存在，新建文件夹
+  if (!fs.existsSync(`./public/upload/${userId}`))
+  {
+    fs.mkdirSync(`./public/upload/${userId}`)
+  }
+
+  let form = new multiparty.Form({ uploadDir: `./public/upload/${userId}` });
   form.parse(req, (err, fields, files) => {
     if (files.file.length < 100) {
       let originPath;
