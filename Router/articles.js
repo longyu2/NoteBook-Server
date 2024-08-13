@@ -50,12 +50,11 @@ router.put("/article", async (req, res) => {
 
 //上传图片
 router.post("/upload", (req, res) => {
-  let userId = req.user.userid  // 得到userid
+  let userId = req.user.userid; // 得到userid
 
   // 如果文件夹不存在，新建文件夹
-  if (!fs.existsSync(`./public/upload/${userId}`))
-  {
-    fs.mkdirSync(`./public/upload/${userId}`)
+  if (!fs.existsSync(`./public/upload/${userId}`)) {
+    fs.mkdirSync(`./public/upload/${userId}`);
   }
 
   let form = new multiparty.Form({ uploadDir: `./public/upload/${userId}` });

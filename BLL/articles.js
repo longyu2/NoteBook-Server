@@ -64,10 +64,10 @@ module.exports = {
     const del_list = req.body.del_sql_notebookid_list;
 
     for (let i = 0; i < del_list.length; i++) {
-      await DAL.DeleteArticles(del_list[i])
+      await DAL.DeleteArticles(del_list[i]);
     }
 
-    return "删除已全部完成"
+    return "删除已全部完成";
   },
 
   UpdateArticle: (req) => {
