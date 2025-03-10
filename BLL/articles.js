@@ -59,18 +59,15 @@ module.exports = {
     return DAL.Output();
   },
 
-  DeleteArticles: (req) => {
+  /** 批量删除 */
+  DeleteArticles: async (req) => {
     const del_list = req.body.del_sql_notebookid_list;
-    return new Promise((resolve, reject) => {
-      let index = 0;
-      del_list.forEach((article_id) => {
-        DAL.DeleteArticles(article_id); // 调用封装好的单条删除
-        if (index == del_list.length - 1) {
-          resolve("删除全部完成");
-        }
-        index++;
-      });
-    });
+
+    for (let i = 0; i < del_list.length; i++) {
+      await DAL.DeleteArticles(del_list[i]);
+    }
+
+    return "删除已全部完成";
   },
 
   UpdateArticle: (req) => {

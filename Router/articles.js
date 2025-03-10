@@ -6,6 +6,8 @@ const multiparty = require("multiparty");
 const fs = require("fs");
 
 const marked = require("marked");
+const db_promise = require("../DAL/db_promise");
+const { log } = require("console");
 
 // 搜索功能
 // 获取文章
@@ -46,35 +48,41 @@ router.put("/article", async (req, res) => {
   res.send(await BLL.UpdateArticle(req));
 });
 
-//上传文件
+//上传图片
 router.post("/upload", (req, res) => {
-  let form = new multiparty.Form({ uploadDir: "./public/upload" });
+  let userId = req.user.userid; // 得到userid
+
+  // 如果文件夹不存在，新建文件夹
+  if (!fs.existsSync(`./public/upload/${userId}`)) {
+    fs.mkdirSync(`./public/upload/${userId}`);
+  }
+
+  let form = new multiparty.Form({ uploadDir: `./public/upload/${userId}` });
   form.parse(req, (err, fields, files) => {
-    // 保证只上传一个文件
-    if (files.file.length === 1) {
-      const file = files.file[0];
-      file.path = file.path.replace("\\", "/");
+    if (files.file.length < 100) {
+      let originPath;
+      let imgUrlStr = "";
+      for (let i = 0; i < files.file.length; i++) {
+        const file = files.file[i];
 
-      // 实际上是使用发送过来的文件本名
-      let newpath = form.uploadDir + "/" + file.originalFilename;
-      // 要保证新文件与旧文件全不重名，才更换为上传名，如有重名，使用随机名
-      const uploadDirFiles = fs.readdirSync(form.uploadDir);
+        file.path = file.path.replaceAll("\\", "/");
+        originPath = form.uploadDir + "/" + file.originalFilename;
+        const uploadDirFiles = fs.readdirSync(form.uploadDir);
 
-      if (uploadDirFiles.indexOf(file.originalFilename) == -1) {
-        fs.renameSync(file.path, newpath);
-
-        res.send({
-          status: 200,
-          message: "上传文件成功",
-          url: newpath.replace("public/", ""),
-        });
-      } else {
-        res.send({
-          status: 200,
-          message: "上传文件与已有文件重名，已自动随机命名",
-          url: file.path.replace("public/", ""),
-        });
+        // 由于上传系统已经自动随机命名，这里若文件夹中没有重名文件就将这个随机名重命名回文件本来的名字
+        if (uploadDirFiles.indexOf(file.originalFilename) == -1) {
+          fs.renameSync(file.path, originPath);
+          imgUrlStr += originPath.replace("./public/", "");
+        } else {
+          imgUrlStr += file.path.replace("public/", "");
+        }
       }
+
+      res.send({
+        status: 200,
+        message: "上传文件成功",
+        url: imgUrlStr,
+      });
     }
   });
 });

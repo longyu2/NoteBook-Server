@@ -3,7 +3,7 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 // 读取配置文件，根据配置文件决定要加载的项
 const server_config = JSON.parse(
-  fs.readFileSync("./config/server-config.json")
+  fs.readFileSync("./config/server-config.json"),
 );
 
 // 临时存放验证码的变量
@@ -20,6 +20,7 @@ module.exports = {
           return;
         }
         let token;
+
         if (results.length > 0) {
           token =
             "Bearer " +
@@ -31,7 +32,7 @@ module.exports = {
               server_config.tokenKey,
               {
                 expiresIn: 3600 * 24 * 3,
-              }
+              },
             );
         }
 
@@ -121,7 +122,6 @@ module.exports = {
   },
 };
 
-("use strict");
 const nodemailer = require("nodemailer");
 const { resolve } = require("path");
 const db_promise = require("./db_promise.js");

@@ -1,6 +1,8 @@
 const e = require("express");
 const db = require("./db.js");
 const db_promise = require("./db_promise");
+const fs = require("fs");
+
 module.exports = {
   // 搜索
   Search: async ({ userid, queryKey }) => {
@@ -110,7 +112,7 @@ module.exports = {
     return db_promise
       .query(
         "select * from Notebooklist where authorid = ? order by createtime desc;",
-        [userid]
+        [userid],
       )
       .then((data) => {
         for (let i = 0; i < data.length; i++) {
@@ -192,13 +194,33 @@ module.exports = {
     return db_promise.query(sql_str, [article_id]);
   },
 
-  DeleteArticles: (article_id) => {
+  /** 删除文章 */
+  DeleteArticles: async (article_id) => {
     // 如果该文章存在于文件夹中，先删除 folder_article 中的记录，否则会受到外键约束
     let sql_str = "delete from folder_notebook where Notebookid = ?";
-    return db_promise.query(sql_str, [article_id]).then((data) => {
-      sql_str = "delete from Notebooklist where Notebookid = ?;";
-      return db_promise.query(sql_str, [article_id]);
-    });
+    await db_promise.query(sql_str, [article_id]);
+
+    // 然后删除该文章所有的图片
+    sql_str = `select img_path from images where notebookid = ${article_id};`;
+    const images = await db_promise.query(sql_str);
+
+    for (let i = 0; i < images.length; i++) {
+      try {
+        fs.renameSync(
+          `./public/${images[i].img_path}`,
+          `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`,
+        ); //删除图片文件
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 清除图片表中的记录
+    sql_str = `delete  from images where notebookid = ${article_id};`;
+    await db_promise.query(sql_str);
+
+    sql_str = "delete from Notebooklist where Notebookid = ?;";
+    return db_promise.query(sql_str, [article_id]);
   },
 
   // 修改文章
