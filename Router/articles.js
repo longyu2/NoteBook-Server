@@ -138,7 +138,7 @@ router.put("/pubarticle/:aid", (req, res) => {
 });
 
 // 查看生涯总字数
-router.get("/wordCount", async (req, res) => {
+router.get("/wordCount/:fid", async (req, res) => {
   res.send(await BLL.wordCount(req));
 });
 

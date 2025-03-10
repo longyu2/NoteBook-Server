@@ -91,8 +91,10 @@ module.exports = {
   // 获取生涯总字数
   wordCount: async (req) => {
     const userid = req.user.userid;
-    const notebookList = await DAL.wordCount(userid);
+    const fid = req.params.fid;
+    const notebookList = await DAL.wordCount(userid, fid);
     let count = 0;
+
     for (let i = 0; i < notebookList.length; i++) {
       count += notebookList[i].content.length;
     }

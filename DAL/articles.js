@@ -1,3 +1,4 @@
+const e = require("express");
 const db = require("./db.js");
 const db_promise = require("./db_promise");
 module.exports = {
@@ -8,8 +9,16 @@ module.exports = {
     return db_promise.query(sql_str, []);
   },
   // 查询字数
-  wordCount: async (userid) => {
-    const sql_str = `select * from Notebooklist where  authorid ='${userid}';`;
+  wordCount: async (userid, fid) => {
+    let sql_str;
+    if (fid == -2) {
+      sql_str = `select * from Notebooklist where  authorid ='${userid}' ;`;
+    } else if (fid == -1) {
+      sql_str = `select * from Notebooklist where Notebookid not in (select notebookid from folder_notebook) and  authorid ='${userid}';`;
+    } else {
+      sql_str = `select * from Notebooklist s1, folder_notebook s2 where s2.notebookid = s1.Notebookid and  s1.authorid ='${userid}' and s2.folder_id = '${fid}';`;
+    }
+
     return db_promise.query(sql_str, []);
   },
 
