@@ -34,7 +34,7 @@ if (server_config.token_Verify === true) {
       })
       .unless({
         path: [/^\/v1\/pubarticle.*/, "/v1/session", "/v1/user"], // 指定路径不经过 Token 解析
-      }),
+      })
   );
 }
 

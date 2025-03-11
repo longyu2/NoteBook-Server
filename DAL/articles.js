@@ -112,7 +112,7 @@ module.exports = {
     return db_promise
       .query(
         "select * from Notebooklist where authorid = ? order by createtime desc;",
-        [userid],
+        [userid]
       )
       .then((data) => {
         for (let i = 0; i < data.length; i++) {
@@ -208,7 +208,7 @@ module.exports = {
       try {
         fs.renameSync(
           `./public/${images[i].img_path}`,
-          `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`,
+          `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`
         ); //删除图片文件
       } catch (err) {
         console.error(err);
