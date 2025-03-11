@@ -53,6 +53,12 @@ router.post("/upload", (req, res) => {
   let userId = req.user.userid; // 得到userid
 
   // 如果文件夹不存在，新建文件夹
+  if (!fs.existsSync("./public")) {
+    fs.mkdirSync("./public");
+  }
+  if (!fs.existsSync("./public/upload")) {
+    fs.mkdirSync("./public/upload");
+  }
   if (!fs.existsSync(`./public/upload/${userId}`)) {
     fs.mkdirSync(`./public/upload/${userId}`);
   }

@@ -55,12 +55,14 @@ create table folder_notebook (
 
 
 --  图片表
+drop table if exists images;
 create table  images (
     notebookid int not null,
-    img_id int not null,
+    img_id int not null AUTO_INCREMENT,
     img_path text,
-    foreign key(notebookid) references articles(notebookid),
-    primary key img_id
+     
+     foreign key(notebookid) references Notebooklist(Notebookid),
+     primary key (img_id)
 );
 
 
