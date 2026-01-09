@@ -67,6 +67,7 @@ module.exports = {
       await DAL.DeleteArticles(del_list[i]);
     }
 
+    console.log("qb");
     return "删除已全部完成";
   },
 

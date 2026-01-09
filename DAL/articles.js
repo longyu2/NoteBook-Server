@@ -211,7 +211,7 @@ module.exports = {
           `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`
         ); //删除图片文件
       } catch (err) {
-        console.error(err);
+        // console.error(err);
       }
     }
 
@@ -220,6 +220,7 @@ module.exports = {
     await db_promise.query(sql_str);
 
     sql_str = "delete from Notebooklist where Notebookid = ?;";
+
     return db_promise.query(sql_str, [article_id]);
   },
 

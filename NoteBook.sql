@@ -23,14 +23,14 @@ authorid int not null,
 title nvarchar(200) not null,
 createtime datetime(0) not null,
 updatetime datetime(0) not null,
-content text,
+content mediumtext,
 foreign key(authorid) references userinfo(userid)
 );
 insert into Notebooklist(authorid,title,createtime,updatetime,content) values
 (1,'第一条测试数据','2020-05-20 22:22:22',now(),'我是content1');
 
 
-select * from Notebooklist;
+
 
 -- 文件夹表
 drop table if exists folders;
