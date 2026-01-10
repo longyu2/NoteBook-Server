@@ -108,18 +108,16 @@ module.exports = {
   },
 
   // 查询所有文章
-  SelAllArticle: function (userid) {
-    return db_promise
-      .query(
-        "select * from Notebooklist where authorid = ? order by createtime desc;",
-        [userid]
-      )
-      .then((data) => {
-        for (let i = 0; i < data.length; i++) {
-          data[i].content = data[i].content.substring(0, 16);
-        }
-        return { status: "成功", data: data };
-      });
+  SelAllArticle: async function (userid) {
+    const data = await db_promise.query(
+      "select * from Notebooklist where authorid = ? order by createtime desc;",
+      [userid]
+    );
+    for (let i = 0; i < data.length; i++) {
+      data[i].length = data[i].content.length;
+      data[i].content = data[i].content.substring(0, 16);
+    }
+    return { status: "成功", data: data };
   },
 
   // 修改创建时间
