@@ -40,6 +40,7 @@ if (server_config.token_Verify === true) {
           "/v1/session",
           "/v1/user",
           "/upload/disk",
+          "/upload/thumbnails",
         ], // 指定路径不经过 Token 解析
       })
   );
