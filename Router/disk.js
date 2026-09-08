@@ -3,7 +3,7 @@ const router = express.Router();
 const multiparty = require("multiparty");
 const path = require("path");
 // disk省略相关抽象，直接实现上传下载功能，无数据库
-const sharp = require("sharp");
+const { Jimp } = require("jimp");
 const homeDir = "./public/upload/disk";
 const fs = require("fs");
 
@@ -16,26 +16,30 @@ const fs = require("fs");
  * @param {number} [options.quality=80] - 图片质量（1-100，仅针对jpg/webp）
  * @returns {Promise<void>}
  */
+/**
+ * Node.js 生成图片缩略图的核心函数
+ * @param {string} inputPath - 原图片路径（绝对/相对）
+ * @param {string} outputPath - 缩略图输出路径
+ * @param {object} options - 配置项
+ * @param {number} options.width - 缩略图宽度（高度自动等比）
+ * @param {number} [options.quality=80] - 图片质量（1-100，仅针对jpg/webp）
+ * @returns {Promise<void>}
+ */
 async function generateThumbnail(inputPath, outputPath, options) {
   try {
-    // 校验原文件是否存在
     if (!fs.existsSync(inputPath)) {
       throw new Error(`原图片不存在：${inputPath}`);
     }
-
     const { width, quality = 80 } = options;
-
-    // 使用sharp处理图片：缩放 + 调整质量 + 输出
-    await sharp(inputPath)
-      .resize(width) // 只指定宽度，高度自动等比缩放；也可传 {width: 200, height: 200, fit: 'cover'} 强制尺寸
-      .jpeg({ quality }) // jpg格式质量配置
-      .png({ compressionLevel: 6 }) // png格式压缩级别（0-9，6为平衡）
-      .toFile(outputPath); // 输出到指定路径
-
+    // jimp@1.x API，quality 在 write 的配置参数，不是 image.setQuality
+    const image = await Jimp.read(inputPath);
+    image.resize({ w: width, h: Jimp.AUTO });
+    // ❌ 删除 image.setQuality(quality);
+    await image.write(outputPath, { quality });
     console.log(`缩略图生成成功：${outputPath}`);
   } catch (err) {
     console.error("生成缩略图失败：", err.message);
-    throw err; // 抛出异常供上层处理
+    throw err;
   }
 }
 
