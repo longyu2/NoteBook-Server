@@ -202,16 +202,17 @@ module.exports = {
     sql_str = `select img_path from images where notebookid = ${article_id};`;
     const images = await db_promise.query(sql_str);
 
-    for (let i = 0; i < images.length; i++) {
-      try {
-        fs.renameSync(
-          `./public/${images[i].img_path}`,
-          `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`
-        ); //删除图片文件
-      } catch (err) {
-        // console.error(err);
-      }
-    }
+    // 紧急修复，不再删除图片文件，严重bug，多篇文章引用同一图片的可能性未被考虑，会直接影响到其他文章的图片显示，导致图片无法显示
+    // for (let i = 0; i < images.length; i++) {
+    //   try {
+    //     fs.renameSync(
+    //       `./public/${images[i].img_path}`,
+    //       `./public/${images[i].img_path.split(".").join("____此图片已删除.")}`
+    //     ); //删除图片文件
+    //   } catch (err) {
+    //     // console.error(err);
+    //   }
+    // }
 
     // 清除图片表中的记录
     sql_str = `delete  from images where notebookid = ${article_id};`;
