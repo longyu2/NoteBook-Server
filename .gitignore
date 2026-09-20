@@ -4,3 +4,4 @@ server-config_copy.json
 dist.js
 public/
 config/
+deploy.key

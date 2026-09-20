@@ -1,10 +1,12 @@
 const express = require("express");
+const multiparty = require("multiparty");
 const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
 const app = express();
 const dayjs = require("dayjs");
-
+const path = require("path");
+const unzipper = require("unzipper");
 var compression = require("compression");
 //尽量在其他中间件前使用compression
 app.use(compression());
@@ -41,10 +43,133 @@ if (server_config.token_Verify === true) {
           "/v1/user",
           "/upload/disk",
           "/upload/thumbnails",
+          "/v1/deploy",
+          "/v1/deploy-server",
         ], // 指定路径不经过 Token 解析
       })
   );
 }
+
+// 一个特殊的硬盘接口，用来部署前端,必须在body-paser之前
+app.post("/v1/deploy", async (req, res) => {
+  // ===== 0. 校验部署密钥 =====
+  const secret = req.headers["x-deploy-secret"];
+  if (!secret || secret !== server_config.deploySecret) {
+    return res.status(403).send({ status: 403, message: "forbidden" });
+  }
+
+  const frontPath = path.resolve("./public/front");
+  // 没有front就建立
+  if (!fs.existsSync(frontPath)) {
+    fs.mkdirSync(frontPath, { recursive: true });
+  }
+  const tmpDir = path.resolve("./public/tmp");
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir, { recursive: true });
+  }
+
+  // 1. 用 multiparty 接收 zip
+  const form = new multiparty.Form({ uploadDir: tmpDir });
+  console.log("23");
+
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res
+        .status(400)
+        .send({ status: 400, message: "上传解析失败", error: err.message });
+    }
+    if (!files.file || files.file.length === 0) {
+      return res.status(400).send({ status: 400, message: "没有收到文件" });
+    }
+
+    const zipFile = files.file[0];
+    const zipPath = zipFile.path;
+
+    try {
+      // 2. 清空前端目录
+      if (fs.existsSync(frontPath)) {
+        fs.rmSync(frontPath, { recursive: true, force: true });
+      }
+      fs.mkdirSync(frontPath, { recursive: true });
+
+      // 3. 解压到 front 目录
+      await fs
+        .createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: frontPath }))
+        .promise();
+
+      // 4. 删除临时 zip
+      fs.rmSync(zipPath, { force: true });
+      console.log("成功");
+      res.send({ status: 200, message: "部署成功", url: "/front/" });
+    } catch (e) {
+      console.error("部署失败：", e);
+      res
+        .status(500)
+        .send({ status: 500, message: "部署失败", error: e.message });
+    }
+  });
+});
+
+const { exec } = require("child_process");
+
+app.post("/v1/deploy-server", (req, res) => {
+  const secret = req.headers["x-deploy-secret"];
+  if (!secret || secret !== server_config.deploySecret) {
+    return res.status(403).send({ status: 403, message: "forbidden" });
+  }
+
+  const distPath = path.resolve("./dist.js");
+  const bakPath = path.resolve("./dist.js.bak");
+  const tmpDir = path.resolve("./public/tmp");
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+
+  const form = new multiparty.Form({ uploadDir: tmpDir });
+
+  form.parse(req, async (err, fields, files) => {
+    if (err)
+      return res
+        .status(400)
+        .send({ status: 400, message: "解析失败", error: err.message });
+    if (!files.file || files.file.length === 0) {
+      return res.status(400).send({ status: 400, message: "没有收到文件" });
+    }
+
+    const uploaded = files.file[0].path;
+
+    try {
+      // 1. 备份旧版本
+      if (fs.existsSync(distPath)) {
+        fs.copyFileSync(distPath, bakPath);
+      }
+
+      // 2. 覆盖新版本
+      fs.copyFileSync(uploaded, distPath);
+      fs.rmSync(uploaded, { force: true });
+
+      // 3. 先响应，再重启
+      res.send({ status: 200, message: "部署成功，重启中" });
+
+      setTimeout(() => {
+        exec("pm2 reload dist", (e, stdout, stderr) => {
+          if (e) {
+            console.error("重启失败:", e, stderr);
+            // 重启失败，恢复旧版本
+            if (fs.existsSync(bakPath)) {
+              fs.copyFileSync(bakPath, distPath);
+              exec("pm2 reload dist");
+            }
+          } else {
+            console.log("重启成功:", stdout);
+          }
+        });
+      }, 500);
+    } catch (e) {
+      console.error("部署失败:", e);
+      res.status(500).send({ status: 500, message: e.message });
+    }
+  });
+});
 
 const bodyParser = require("body-parser");
 // app.use(bodyParser.json()); // support json encoded bodies

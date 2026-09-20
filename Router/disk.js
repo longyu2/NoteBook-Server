@@ -7,6 +7,7 @@ const { Jimp } = require("jimp");
 const homeDir = "./public/upload/disk";
 const fs = require("fs");
 
+const unzipper = require("unzipper");
 /**
  * Node.js 生成图片缩略图的核心函数
  * @param {string} inputPath - 原图片路径（绝对/相对）
@@ -130,4 +131,5 @@ router.post("/filesupload", async (req, res) => {
     }
   });
 });
+
 module.exports = router;
