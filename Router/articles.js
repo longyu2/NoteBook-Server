@@ -8,6 +8,7 @@ const fs = require("fs");
 const marked = require("marked");
 const db_promise = require("../DAL/db_promise");
 const { log } = require("console");
+const { encode } = require("punycode");
 
 // 搜索功能
 // 获取文章
@@ -105,6 +106,9 @@ router.put("/pubarticle/:aid", (req, res) => {
   BLL.ByIdGetArticle(req).then((data) => {
     const article = data[0];
     let document = marked.parse(`# ${article.title}\n${article.content}`);
+    const cssPath = "./assets/css/github.css";
+    const cssStr = fs.readFileSync(cssPath);
+
     let str = `<!DOCTYPE html>
     <html lang = "en" >
         <head>
@@ -112,9 +116,10 @@ router.put("/pubarticle/:aid", (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
 
                 <meta name="color-scheme" content="light dark">
-                <link rel="stylesheet" href="github-markdown.css">
+               
                     <title>${article.title}</title>
                       <style>
+                      ${cssStr}
                         body {
                             box-sizing: border-box;
                             min-width: 200px;
@@ -129,7 +134,7 @@ router.put("/pubarticle/:aid", (req, res) => {
                             }
                         }
                     </style>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
+                    <link rel="stylesheet" href="${cssPath}">
                     <style>
                         .github-fork-ribbon:before {
                             background-color: #121612;
@@ -143,6 +148,10 @@ router.put("/pubarticle/:aid", (req, res) => {
                 </body>
       </html>`;
 
+    // 如果文件夹不存在则创建
+    if (!fs.existsSync("./public/pubhtml")) {
+      fs.mkdirSync("./public/pubhtml", { recursive: true });
+    }
     fs.writeFileSync(`public/pubhtml/${req.params.aid}.html`, str);
     res.send({
       status: "200",

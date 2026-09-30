@@ -9,8 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_JS = path.resolve(__dirname, "dist.js");
 const KEY_PATH = path.resolve(__dirname, "deploy.key");
 
-const SERVER_URL =
-  process.env.DEPLOY_URL || "http://b.misaka-mikoto.cn:9999/v1";
+const SERVER_URL = process.env.DEPLOY_URL || "http://misaka-mikoto.cn:9994/v1";
 
 function readKey(): string {
   if (process.env.DEPLOY_SECRET) return process.env.DEPLOY_SECRET.trim();

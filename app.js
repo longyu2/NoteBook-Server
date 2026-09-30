@@ -211,6 +211,6 @@ app.use(function (err, req, res, next) {
   }
 });
 
-server.listen(9999, () => {
-  console.log("server is running in 9999");
+server.listen(server_config.port, () => {
+  console.log("服务器已经启动，端口是 " + server_config.port);
 });
