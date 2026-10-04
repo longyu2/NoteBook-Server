@@ -17,6 +17,7 @@ const articles_router = require("./Router/articles.js");
 const folders_router = require("./Router/folders");
 const images_router = require("./Router/images");
 const disk_router = require("./Router/disk");
+const ai_router = require("./Router/ai");
 
 const expressJwt = require("express-jwt");
 
@@ -191,6 +192,9 @@ app.use("/v1", articles_router);
 app.use("/v1", folders_router);
 app.use("/v1", images_router);
 app.use("/v1", disk_router);
+// AI 助手转发。/v1/ai/* 故意不进上面 expressJwt 的 unless 白名单 ——
+// 这样只有带有效 token 的登录用户能调，别人扒不到 key 也刷不了额度。
+app.use("/v1", ai_router);
 
 let server;
 // 若启用https,则读取密钥和证书
