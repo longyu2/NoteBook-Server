@@ -14,7 +14,33 @@ const router = express.Router();
  */
 
 // config/ 整个目录都在 .gitignore 里，key 不会进仓库
-const CONFIG_PATH = path.join(__dirname, "..", "config", "ai-config.json");
+/**
+ * 配置文件位置。
+ *
+ * 不能只写 `path.join(__dirname, '..', 'config')`：
+ *   - 源码跑（nodemon app.js）时 __dirname 是 <repo>/Router，往上一级正好是 <repo>/config ✓
+ *   - 部署跑的是 esbuild 打的单文件 dist.js，__dirname 变成 dist.js 所在目录，
+ *     再往上一级就跑出项目目录了 —— 线上永远读不到 key，还会被误判成「没配」。
+ *     （esbuild 不会改写 __dirname，已 grep 确认产物里就是原样的 __dirname。）
+ * 所以两个布局都探测一遍：先找已存在的配置文件，再退一步找存在的目录。
+ * 另外支持 AI_CONFIG_PATH 环境变量兜底，线上布局特殊时不用重新打包。
+ */
+function pickConfigPath() {
+  if (process.env.AI_CONFIG_PATH) {
+    return path.resolve(process.env.AI_CONFIG_PATH);
+  }
+  const sourceLayout = path.join(__dirname, "..", "config", "ai-config.json");
+  const bundledLayout = path.join(__dirname, "config", "ai-config.json");
+  for (const p of [sourceLayout, bundledLayout]) {
+    if (fs.existsSync(p)) return p;
+  }
+  for (const p of [sourceLayout, bundledLayout]) {
+    if (fs.existsSync(path.dirname(p))) return p;
+  }
+  return bundledLayout;
+}
+
+const CONFIG_PATH = pickConfigPath();
 
 const DEFAULT_CONFIG = {
   apiKey: "",
