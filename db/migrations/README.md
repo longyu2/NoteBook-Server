@@ -9,6 +9,7 @@
 db/migrations/
   V001__baseline.sql          ← 冻结基线：2026-10-10 从真实库导出，永不修改
   V002__add_is_ai_generated.sql ← 给 Notebooklist 加「正文是否 AI 生成」
+  V003__backfill_is_ai_generated.sql ← 把历史文章的该字段收敛为 0
   README.md                   ← 本文件
   history/                    ← 历史档案（**勿执行**）
     NoteBook.sql              ← 原根目录的建表脚本（已弃用，开头有 DROP DATABASE）
@@ -39,6 +40,40 @@ db/migrations/
 |---|---|---|
 | V001 | 冻结基线（真实库导出，5 张业务表） | 2026-10-10 |
 | V002 | `Notebooklist.is_ai_generated TINYINT(1) DEFAULT 0` | 2026-10-10 |
+| V003 | 历史文章 `is_ai_generated` 回填为 0（NULL → 0） | 2026-10-10 |
+
+**两边都要执行**（见下节「两套数据库」）：上表在**本机开发库**和**线上库**都已跑到 V003。
+
+## 两套数据库（重要，别只迁一边）
+
+| | 本机开发库 | 线上库 |
+|---|---|---|
+| 位置 | `127.0.0.1:3306` | `192.168.1.3`（SSH 端口 **9991**，用户 `root`，用 `~/.ssh/id_rsa`） |
+| 应用 | 本地 `pnpm dev`（:9999） | `/home/longyu/www/notebook-Server`，pm2 进程名 `dist` |
+| 规模 | 几十篇（开发数据） | 1900+ 篇（真实数据） |
+| MySQL | 8.0 | 8.0.46-0ubuntu |
+
+**它们是两个完全独立的 MySQL 实例**，只是库名都叫 `NotebookDB`。
+线上 MySQL **只监听 127.0.0.1**，从开发机直连 3306 会 `ECONNREFUSED`，
+必须走 SSH 隧道/远程执行。
+
+只迁本机不迁线上，会出现这个现象：新接口在本地正常，
+**线上却永久挂起**（不是 404）—— 因为 Express 4 的 async 路由里
+`update ... set is_ai_generated` 抛 `Unknown column`，没人 catch，
+请求就永远不返回。踩过一次，见下。
+
+线上迁移的正确姿势（把本地迁移文件直接喂给远程 mysql）：
+
+```bash
+ssh 192.168.1.3 'export MYSQL_PWD="<密码>"; mysql -h 127.0.0.1 -u root NotebookDB --default-character-set=utf8mb4' \
+  < db/migrations/V002__add_is_ai_generated.sql
+```
+
+线上账本表也是同样方式建：`schema_migrations` 之前**根本不存在**，
+第一次迁移时补建并登记 `V001`（线上结构本就等于基线）。
+
+> 线上密码与本地相同，在 `config/server-config.json` → `mysql_setting.password`。
+> 动结构前先备份：`mysqldump --single-transaction ... > /root/db-backup/xxx.sql`。
 
 ## 查当前跑到哪版
 
