@@ -79,6 +79,13 @@ module.exports = {
     ];
     return DAL.UpdateArticle(title, content, article_id);
   },
+
+  // 标记文章正文是否由 AI 生成
+  SetAiGenerated: (req) => {
+    const article_id = req.body.Notebookid;
+    const flag = req.body.is_ai_generated;
+    return DAL.SetAiGenerated(article_id, flag);
+  },
   // 更改创建时间
   UpdateCreatetime: (req) => {
     const notebookId = req.body.notebookId;

@@ -7,22 +7,38 @@
 
 ```
 db/migrations/
-  V001__baseline.sql      ← 冻结基线：2026-10-10 从真实库导出，永不修改
-  README.md               ← 本文件
-  history/                ← 历史档案（**勿执行**）
-    NoteBook.sql          ← 原根目录的建表脚本（已弃用，开头有 DROP DATABASE）
-    V001..V008__*.sql     ← 按 git 提交记录回溯的 8 次结构变更
+  V001__baseline.sql          ← 冻结基线：2026-10-10 从真实库导出，永不修改
+  V002__add_is_ai_generated.sql ← 给 Notebooklist 加「正文是否 AI 生成」
+  README.md                   ← 本文件
+  history/                    ← 历史档案（**勿执行**）
+    NoteBook.sql              ← 原根目录的建表脚本（已弃用，开头有 DROP DATABASE）
+    H001..H008__*.sql         ← 按 git 提交记录回溯的 8 次结构变更
 ```
+
+**命名约定（重要）**：`V` 前缀 = 正式版本序列，按序号执行；
+`H` 前缀 = history 档案，只作查阅，**永远不要执行**。
+两套名字刻意分开 —— 早期 history 里也叫 `V001..V008`，
+结果和正式序列的 `V002` 撞名，容易误跑，所以统一改成 `H`。
 
 `history/` 里的 8 个文件是按 git 提交记录**回溯拟写**的，不是真实跑过的脚本。
 它们放在单独目录、不参与版本序列，原因见下面「关于基线」。
 
 ## 标准流程（以后每次加字段都照这个走）
 
-1. **写文件** `db/migrations/V002__add_xxx.sql`
-2. **执行** `mysql -h 127.0.0.1 -u root -p NotebookDB < db/migrations/V002__add_xxx.sql`
-3. **记账** `mysql -h 127.0.0.1 -u root -p NotebookDB -e "INSERT INTO schema_migrations (version) VALUES ('V002');"`
+1. **写文件** `db/migrations/V00N__add_xxx.sql`（N 取当前最大号 +1；写幂等的 DDL）
+2. **执行** `mysql -h 127.0.0.1 -u root -p NotebookDB < db/migrations/V00N__add_xxx.sql`
+3. **记账** `mysql -h 127.0.0.1 -u root -p NotebookDB -e "INSERT INTO schema_migrations (version) VALUES ('V00N');"`
 4. **提交** `git add db/migrations/ && git commit -m "feat: Notebooklist 增加 xxx 字段"`
+
+> `mysql` 不在 PATH 里，真实路径 `C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe`；
+> 密码在 `config/server-config.json` → `mysql_setting.password`，用 `MYSQL_PWD` 环境变量传。
+
+## 已执行到哪版
+
+| 版本 | 内容 | 执行时间 |
+|---|---|---|
+| V001 | 冻结基线（真实库导出，5 张业务表） | 2026-10-10 |
+| V002 | `Notebooklist.is_ai_generated TINYINT(1) DEFAULT 0` | 2026-10-10 |
 
 ## 查当前跑到哪版
 

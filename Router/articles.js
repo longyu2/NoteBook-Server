@@ -49,6 +49,11 @@ router.put("/article", async (req, res) => {
   res.send(await BLL.UpdateArticle(req));
 });
 
+// 标记文章正文是否由 AI 生成（放在 /article 之后，Express 路径精确匹配不会串）
+router.put("/article/ai-generated", async (req, res) => {
+  res.send(await BLL.SetAiGenerated(req));
+});
+
 //上传图片
 router.post("/upload", (req, res) => {
   let userId = req.user.userid; // 得到userid

@@ -233,4 +233,22 @@ module.exports = {
         return "修改成功";
       });
   },
+
+  /** 标记文章正文是否由 AI 生成（V002 新增字段）
+   *  单独一个接口，不混进 UpdateArticle：
+   *  顶部状态栏的开关手上只有 id，没有 title/content，
+   *  走整篇保存会把正文覆盖成空。 */
+  SetAiGenerated: (article_id, flag) => {
+    let sql_str =
+      "update Notebooklist set is_ai_generated = ? where Notebookid = ?";
+    return db_promise
+      .query(sql_str, [flag ? 1 : 0, article_id])
+      .then((data) => {
+        return {
+          status: "200",
+          data: flag ? 1 : 0,
+          message: "修改成功",
+        };
+      });
+  },
 };
