@@ -216,13 +216,28 @@ router.post("/ai/chat", async (req, res) => {
     temperature: typeof temperature === "number" ? temperature : cfg.temperature
   };
 
-  // 深度思考开关。前端传 boolean，这里翻译成 DeepSeek 的两个字段：
-  // thinking.type 是总开关，reasoning_effort 决定强度。
-  // 两个都给，是因为只给一个时另一个会取默认值 —— 而 reasoning_effort 默认是 high，
-  // 那等于「关不掉」，会静默地把用户的意图覆盖掉。
-  if (typeof thinking === "boolean") {
-    payload.thinking = { type: thinking ? "enabled" : "disabled" };
-    payload.reasoning_effort = thinking ? "high" : "none";
+  // 深度思考档位。前端传 'off' | 'low' | 'high' | 'max'（兼容更早的 boolean）。
+  //
+  // 官方文档（deepseek-v4.1-flash）明确两条，之前的写法两条都踩了：
+  //  ① 关闭思考只能用 thinking.type = "disabled"，**不能**拿 reasoning_effort
+  //     的 "none"/"minimal" 代替 —— 那不是一个合法的强度值；
+  //  ② thinking.type 为 disabled 时**不要再发 reasoning_effort**，两个一起发是非法组合。
+  // 所以这里必须二选一地下发，不能像以前那样两个都塞进去。
+  //
+  // 另外 reasoning_effort 只有 low / high / max 三档是真实档位（默认 high）；
+  // medium / xhigh 只是兼容别名，会被映射到 high，不要当独立档位暴露给用户。
+  const THINK_LEVELS = ["off", "low", "high", "max"];
+  let level = thinking;
+  if (typeof level === "boolean") level = level ? "high" : "off"; // 兼容旧前端
+  if (level === "none" || level === "disabled") level = "off"; // 兼容更早的写法
+  if (typeof level === "string" && THINK_LEVELS.includes(level)) {
+    if (level === "off") {
+      payload.thinking = { type: "disabled" };
+      // 刻意不发 reasoning_effort —— 见上面第 ② 条
+    } else {
+      payload.thinking = { type: "enabled" };
+      payload.reasoning_effort = level;
+    }
   }
 
   // 工具调用（function calling）：前端定义「覆写全文」「插入第 N 段后」这些动作，
