@@ -3,11 +3,30 @@ const DAL = require("../DAL/articles");
 const articles = require("../DAL/articles");
 
 module.exports = {
-  // 搜索功能
-  Search: async (req) => {
+  /* 搜索（卡片列表）
+     返回 { list, total, page, size, q } —— total 用来显示「找到 N 篇」并判断还有没有下一页。
+     空关键词直接短路，不打库。 */
+  SearchCards: async (req) => {
     const userid = req.user.userid;
-    const queryKey = req.params.key;
-    return await DAL.Search({ queryKey, userid });
+    const q = String(req.query.q == null ? "" : req.query.q).trim();
+
+    if (q === "") {
+      return { status: "成功", data: { list: [], total: 0, page: 1, size: 0, q: "" } };
+    }
+
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const size = Math.min(50, Math.max(1, parseInt(req.query.size, 10) || 24));
+    const offset = (page - 1) * size;
+
+    const [list, countRows] = await Promise.all([
+      DAL.SearchCards({ userid, q, limit: size, offset }),
+      DAL.CountSearch({ userid, q }),
+    ]);
+
+    return {
+      status: "成功",
+      data: { list, total: countRows[0] ? countRows[0].total : 0, page, size, q },
+    };
   },
 
   // 根据id查询文章

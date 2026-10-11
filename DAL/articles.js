@@ -4,11 +4,38 @@ const db_promise = require("./db_promise");
 const fs = require("fs");
 
 module.exports = {
-  // 搜索
-  Search: async ({ userid, queryKey }) => {
-    const sql_str = `select * from Notebooklist where (title like '%${queryKey}%' or content like '%${queryKey}%') and authorid ='${userid}';`;
+  /* ===== 搜索（卡片列表用）=====
+     旧的 Search 是字符串拼接，`%` / `_` 会被当成通配符，单引号还能直接改写 SQL，
+     而且 select * 会把上千篇全文一次吐出来。这里换成全参数化 + 分页 + 只取卡片字段。
 
-    return db_promise.query(sql_str, []);
+     用 instr() 而不是 like：instr 是字面量子串匹配，用户搜「50%」不会被 % 通配掉。
+     instr 在 utf8mb4_general_ci 下大小写不敏感，和原来的 like 行为一致。
+
+     snippet 直接由数据库切好：以首个命中位置为锚，往前留 80 字再取 320 字，
+     命中在标题里（instr(content)=0）时 greatest 兜底成从第 1 个字开始。
+     前端拿到这段再自己居中裁一次，所以这里给宽一点没关系。 */
+  SearchCards: ({ userid, q, limit, offset }) => {
+    const sql_str = `
+      select Notebookid, authorid, title, createtime, updatetime,
+             is_public, is_ai_generated,
+             char_length(content) as length,
+             substring(content, greatest(1, instr(content, ?) - 80), 320) as snippet
+      from Notebooklist
+      where authorid = ?
+        and (instr(title, ?) > 0 or instr(content, ?) > 0)
+      order by createtime desc
+      limit ? offset ?;`;
+    return db_promise.query(sql_str, [q, userid, q, q, limit, offset]);
+  },
+
+  /** 搜索命中总数，给前端显示「找到 N 篇」和判断还有没有下一页 */
+  CountSearch: ({ userid, q }) => {
+    const sql_str = `
+      select count(*) as total
+      from Notebooklist
+      where authorid = ?
+        and (instr(title, ?) > 0 or instr(content, ?) > 0);`;
+    return db_promise.query(sql_str, [userid, q, q]);
   },
   // 查询字数
   wordCount: async (userid, fid) => {

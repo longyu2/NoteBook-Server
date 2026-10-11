@@ -10,10 +10,12 @@ const db_promise = require("../DAL/db_promise");
 const { log } = require("console");
 const { encode } = require("punycode");
 
-// 搜索功能
-// 获取文章
-router.get("/search/:key", async (req, res) => {
-  res.send(await BLL.Search(req));
+/* 搜索（卡片列表）
+   需要登录，只搜自己的文章 —— 所以不进 app.js 的 JWT 白名单。
+   走 query 参数而不是路径参数：关键词里带 / # ? 之类也不会把路径切坏，
+   原来的 /search/:key 就是栽在这上面（顺手把那条也删了）。 */
+router.get("/search", async (req, res) => {
+  res.send(await BLL.SearchCards(req));
 });
 
 // 获取文章
