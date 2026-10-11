@@ -10,8 +10,16 @@ module.exports = {
     const userid = req.user.userid;
     const q = String(req.query.q == null ? "" : req.query.q).trim();
 
+    /* 排序：sort = time（创建时间）| word（正文字数），order = desc（默认）| asc。
+       这里就把非法值收敛成默认值，DAL 拿到的只有白名单枚举。 */
+    const sort = req.query.sort === "word" ? "word" : "time";
+    const order = req.query.order === "asc" ? "asc" : "desc";
+
     if (q === "") {
-      return { status: "成功", data: { list: [], total: 0, page: 1, size: 0, q: "" } };
+      return {
+        status: "成功",
+        data: { list: [], total: 0, page: 1, size: 0, q: "", sort, order },
+      };
     }
 
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -19,13 +27,21 @@ module.exports = {
     const offset = (page - 1) * size;
 
     const [list, countRows] = await Promise.all([
-      DAL.SearchCards({ userid, q, limit: size, offset }),
+      DAL.SearchCards({ userid, q, limit: size, offset, sort, order }),
       DAL.CountSearch({ userid, q }),
     ]);
 
     return {
       status: "成功",
-      data: { list, total: countRows[0] ? countRows[0].total : 0, page, size, q },
+      data: {
+        list,
+        total: countRows[0] ? countRows[0].total : 0,
+        page,
+        size,
+        q,
+        sort,
+        order,
+      },
     };
   },
 

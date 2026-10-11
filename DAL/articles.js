@@ -14,7 +14,16 @@ module.exports = {
      snippet 直接由数据库切好：以首个命中位置为锚，往前留 80 字再取 320 字，
      命中在标题里（instr(content)=0）时 greatest 兜底成从第 1 个字开始。
      前端拿到这段再自己居中裁一次，所以这里给宽一点没关系。 */
-  SearchCards: ({ userid, q, limit, offset }) => {
+  SearchCards: ({ userid, q, limit, offset, sort, order }) => {
+    /* 排序白名单：列名不能用占位符，所以只能靠枚举映射成写死的 SQL 片段，
+       请求里的 sort/order 永远只是「选哪一项」，绝不会被拼进语句。
+       sort=time 按创建时间，sort=word 按正文字数；order=asc 正序，其余一律倒序。
+
+       第二个排序键固定 Notebookid desc：库里大量 0 字/同秒创建的文章，
+       只按首列排的话它们之间顺序由 MySQL 随便给，翻页会出现重复或漏掉。 */
+    const sort_column = sort === "word" ? "char_length(content)" : "createtime";
+    const sort_order = order === "asc" ? "asc" : "desc";
+
     const sql_str = `
       select Notebookid, authorid, title, createtime, updatetime,
              is_public, is_ai_generated,
@@ -23,7 +32,7 @@ module.exports = {
       from Notebooklist
       where authorid = ?
         and (instr(title, ?) > 0 or instr(content, ?) > 0)
-      order by createtime desc
+      order by ${sort_column} ${sort_order}, Notebookid desc
       limit ? offset ?;`;
     return db_promise.query(sql_str, [q, userid, q, q, limit, offset]);
   },
