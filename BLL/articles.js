@@ -86,6 +86,27 @@ module.exports = {
     const flag = req.body.is_ai_generated;
     return DAL.SetAiGenerated(article_id, flag);
   },
+
+  // 标记文章是否公开
+  SetPublic: (req) => {
+    const article_id = req.body.Notebookid;
+    const flag = req.body.is_public;
+    return DAL.SetPublic(article_id, flag);
+  },
+
+  /* ===== 下面两个给免鉴权的公开页用，不接受 userid 过滤 ===== */
+
+  // 公开文章列表（卡牌用）
+  PublicList: async () => {
+    const data = await DAL.SelPublicArticles();
+    return { status: "成功", data: data };
+  },
+
+  // 单篇公开文章
+  PublicArticle: async (req) => {
+    const data = await DAL.ByIdGetPublicArticle(req.params.aid);
+    return { status: "成功", data: data };
+  },
   // 更改创建时间
   UpdateCreatetime: (req) => {
     const notebookId = req.body.notebookId;

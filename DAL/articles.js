@@ -251,4 +251,43 @@ module.exports = {
         };
       });
   },
+
+  /** 标记文章是否公开（V004 新增字段）
+   *  和 SetAiGenerated 同理：单独一条 update，只改这一列。 */
+  SetPublic: (article_id, flag) => {
+    let sql_str = "update Notebooklist set is_public = ? where Notebookid = ?";
+    return db_promise
+      .query(sql_str, [flag ? 1 : 0, article_id])
+      .then((data) => {
+        return {
+          status: "200",
+          data: flag ? 1 : 0,
+          message: "修改成功",
+        };
+      });
+  },
+
+  /** 公开文章列表（免鉴权接口用）
+   *  只取卡片需要的字段：正文只截前 300 字当摘要，
+   *  免得一次把上千篇全文吐出去。 */
+  SelPublicArticles: () => {
+    const sql_str = `
+      select Notebookid, authorid, title, createtime, updatetime,
+             left(content, 300) as excerpt,
+             char_length(content) as length
+      from Notebooklist
+      where is_public = 1
+      order by createtime desc;`;
+    return db_promise.query(sql_str, []);
+  },
+
+  /** 单篇公开文章（免鉴权接口用）
+   *  必须 is_public = 1 —— 非公开的文章在这里要「当作不存在」，
+   *  不能因为知道了 id 就能读到正文。 */
+  ByIdGetPublicArticle: (article_id) => {
+    const sql_str =
+      "select Notebookid, authorid, title, createtime, updatetime, content " +
+      "from Notebooklist where Notebookid = ? and is_public = 1";
+    return db_promise.query(sql_str, [article_id]);
+  },
 };

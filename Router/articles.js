@@ -54,6 +54,23 @@ router.put("/article/ai-generated", async (req, res) => {
   res.send(await BLL.SetAiGenerated(req));
 });
 
+// 标记文章是否公开（同样单独一条，只改 is_public 这一列）
+router.put("/article/public", async (req, res) => {
+  res.send(await BLL.SetPublic(req));
+});
+
+/* ===== 公开页接口（免鉴权）=====
+   app.js 的 JWT 白名单里放行了 pubarticle 前缀，所以这两个路由不带 token 也能访问。
+   安全边界：只回 is_public = 1 的文章，非公开的当「不存在」处理。
+   注意顺序 —— /pubarticle/list 必须在 /pubarticle/:aid 之前，否则 list 会被当成 aid。 */
+router.get("/pubarticle/list", async (req, res) => {
+  res.send(await BLL.PublicList());
+});
+
+router.get("/pubarticle/:aid", async (req, res) => {
+  res.send(await BLL.PublicArticle(req));
+});
+
 //上传图片
 router.post("/upload", (req, res) => {
   let userId = req.user.userid; // 得到userid
