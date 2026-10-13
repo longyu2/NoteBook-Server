@@ -10,9 +10,14 @@ module.exports = {
     const userid = req.user.userid;
     const q = String(req.query.q == null ? "" : req.query.q).trim();
 
-    /* 排序：sort = time（创建时间）| word（正文字数），order = desc（默认）| asc。
-       这里就把非法值收敛成默认值，DAL 拿到的只有白名单枚举。 */
-    const sort = req.query.sort === "word" ? "word" : "time";
+    /* 排序：sort = createtime（创建时间，默认）| updatetime（更新时间）| word（正文字数），
+       order = desc（默认）| asc。这里就把非法值收敛成默认值，DAL 拿到的只有白名单枚举。 */
+    const sort =
+      req.query.sort === "word"
+        ? "word"
+        : req.query.sort === "updatetime"
+          ? "updatetime"
+          : "createtime";
     const order = req.query.order === "asc" ? "asc" : "desc";
 
     if (q === "") {

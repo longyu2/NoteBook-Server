@@ -17,11 +17,17 @@ module.exports = {
   SearchCards: ({ userid, q, limit, offset, sort, order }) => {
     /* 排序白名单：列名不能用占位符，所以只能靠枚举映射成写死的 SQL 片段，
        请求里的 sort/order 永远只是「选哪一项」，绝不会被拼进语句。
-       sort=time 按创建时间，sort=word 按正文字数；order=asc 正序，其余一律倒序。
+       sort=createtime 按创建时间（默认），sort=updatetime 按更新时间，sort=word 按正文字数；
+       order=asc 正序，其余一律倒序。
 
        第二个排序键固定 Notebookid desc：库里大量 0 字/同秒创建的文章，
        只按首列排的话它们之间顺序由 MySQL 随便给，翻页会出现重复或漏掉。 */
-    const sort_column = sort === "word" ? "char_length(content)" : "createtime";
+    const sort_column =
+      sort === "word"
+        ? "char_length(content)"
+        : sort === "updatetime"
+          ? "updatetime"
+          : "createtime";
     const sort_order = order === "asc" ? "asc" : "desc";
 
     const sql_str = `
