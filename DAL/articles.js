@@ -205,23 +205,40 @@ module.exports = {
 
   // 根据文件夹id查询文章
   byFolderIdQueryArticle: function (folderid, userid) {
+    /* 和 SelAllArticle 保持一致：额外带出真实字数（char_length）并把 content 截到 16 字，
+       否则主页列表卡片的「N 字」在这个分支下全是 0（前端读 item.length，此前只有
+       «全部笔记» 分支才赋这个字段）。
+       select * 之上再补 char_length，避免把上千篇全文都传回前端。 */
     let sql =
-      "select * from folder_notebook s1,Notebooklist s2 where s1.notebookid = s2.Notebookid and s1.folder_id = ? and s2.authorid = ? order by createtime desc";
+      "select s1.*, s2.*, char_length(s2.content) as length, substring(s2.content, 1, 16) as content " +
+      "from folder_notebook s1, Notebooklist s2 " +
+      "where s1.notebookid = s2.Notebookid and s1.folder_id = ? and s2.authorid = ? " +
+      "order by s2.createtime desc";
     return new Promise((resolve, reject) => {
       db.query(sql, [folderid, userid], (err, result) => {
         if (err) {
           reject(err);
           return;
         }
-        resolve({ status: "查询成功", data: result });
+        /* s1.* 和 s2.* 都带 Notebookid，后出现的 s2.content 会覆盖 s1 的同名列；
+           上面已把 s2.content 换成 16 字截断版，这里只需补回字符串类型的 length
+           （char_length 在 mysql 驱动里可能回字符串，前端做 `|| 0` 前先转数字）。 */
+        const data = result.map((row) => ({
+          ...row,
+          length: parseInt(row.length, 10) || 0,
+        }));
+        resolve({ status: "查询成功", data: data });
       });
     });
   },
 
   // 查询未分类的文章
   SelUnclassifiedArticle: function (userid) {
+    /* 同样补齐 length + 截断 content，理由见 byFolderIdQueryArticle */
     const sql_str =
-      "select  * from Notebooklist where Notebookid not in (select notebookid from folder_notebook ) and authorid = ?  order by createtime desc;";
+      "select *, char_length(content) as length, substring(content, 1, 16) as content " +
+      "from Notebooklist where Notebookid not in (select notebookid from folder_notebook) " +
+      "and authorid = ? order by createtime desc;";
     return new Promise((resolve, reject) => {
       db.query(sql_str, [userid], (err, results) => {
         if (err) {
@@ -229,8 +246,9 @@ module.exports = {
           return;
         }
         const data = JSON.parse(JSON.stringify(results));
-
-        // 对data里的字段进行裁剪 ，使其不要过长，占用带宽
+        for (let i = 0; i < data.length; i++) {
+          data[i].length = parseInt(data[i].length, 10) || 0;
+        }
 
         resolve({ status: "成功", data: data });
       });
@@ -239,13 +257,18 @@ module.exports = {
 
   // 查询所有文章
   SelAllArticle: async function (userid) {
+    /* 只取卡片需要的字段：正文截到 16 字当预览，另用 char_length 带出真实字数。
+       不要用「先查全文再 data[i].length = content.length」那套 —— 全文会白传一遍，
+       而且 JS 的 .length 数的是 UTF-16 码元，含 emoji 时和 MySQL 的 char_length 对不上。 */
     const data = await db_promise.query(
-      "select * from Notebooklist where authorid = ? order by createtime desc;",
+      "select Notebookid, authorid, title, createtime, updatetime, " +
+        "is_public, is_ai_generated, char_length(content) as length, " +
+        "substring(content, 1, 16) as content " +
+        "from Notebooklist where authorid = ? order by createtime desc;",
       [userid]
     );
     for (let i = 0; i < data.length; i++) {
-      data[i].length = data[i].content.length;
-      data[i].content = data[i].content.substring(0, 16);
+      data[i].length = parseInt(data[i].length, 10) || 0;
     }
     return { status: "成功", data: data };
   },
