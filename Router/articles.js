@@ -23,6 +23,14 @@ router.get("/articles", async (req, res) => {
   res.send(await BLL.byFolderIdQueryArticle(req));
 });
 
+/* 阅览模式：全量文章分页列表（不筛关键词，可筛文件夹）
+   和搜索一样需要登录，所以同属 app.js JWT 白名单之外。
+   放在 /article/:aid 之前 —— 路径前缀不同（list vs :aid）其实不会撞，
+   但保持「具体路径写在参数路径前」的习惯。 */
+router.get("/article/list", async (req, res) => {
+  res.send(await BLL.ListCards(req));
+});
+
 // 新建文章
 router.post("/articles", async (req, res) => {
   res.send(await BLL.AddArticle(req));

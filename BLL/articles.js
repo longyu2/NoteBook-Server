@@ -31,9 +31,14 @@ module.exports = {
     const size = Math.min(50, Math.max(1, parseInt(req.query.size, 10) || 24));
     const offset = (page - 1) * size;
 
+    /* 搜索范围：不传 = 全部（-2）；传了具体值就限定在该文件夹里。
+       阅览模式的「当前文件夹」勾选走这个参数，主页搜索不传 → 行为不变。 */
+    const rawFid = parseInt(req.query.folderid, 10);
+    const folderid = Number.isNaN(rawFid) ? -2 : rawFid;
+
     const [list, countRows] = await Promise.all([
-      DAL.SearchCards({ userid, q, limit: size, offset, sort, order }),
-      DAL.CountSearch({ userid, q }),
+      DAL.SearchCards({ userid, q, folderid, limit: size, offset, sort, order }),
+      DAL.CountSearch({ userid, q, folderid }),
     ]);
 
     return {
@@ -44,6 +49,49 @@ module.exports = {
         page,
         size,
         q,
+        folderid,
+        sort,
+        order,
+      },
+    };
+  },
+
+  /* 阅览模式（全量文章分页列表）
+     和 SearchCards 的差别只有「不筛关键词」：同样收敛排序白名单、夹分页区间，
+     额外支持按文件夹筛选（folderid：-2 全部 / -1 未分类 / 其他为具体文件夹）。
+     返回结构也刻意保持一致（{ list, total, page, size }），前端能复用同一套卡片和分页器。 */
+  ListCards: async (req) => {
+    const userid = req.user.userid;
+
+    const sort =
+      req.query.sort === "word"
+        ? "word"
+        : req.query.sort === "updatetime"
+          ? "updatetime"
+          : "createtime";
+    const order = req.query.order === "asc" ? "asc" : "desc";
+
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const size = Math.min(50, Math.max(1, parseInt(req.query.size, 10) || 24));
+    const offset = (page - 1) * size;
+
+    /* folderid 收敛成数字：非法值当作 -2（全部），否则字符串会带进 SQL 参数比较 */
+    const rawFid = parseInt(req.query.folderid, 10);
+    const folderid = Number.isNaN(rawFid) ? -2 : rawFid;
+
+    const [list, countRows] = await Promise.all([
+      DAL.ListCards({ userid, folderid, limit: size, offset, sort, order }),
+      DAL.CountList({ userid, folderid }),
+    ]);
+
+    return {
+      status: "成功",
+      data: {
+        list,
+        total: countRows[0] ? countRows[0].total : 0,
+        page,
+        size,
+        folderid,
         sort,
         order,
       },

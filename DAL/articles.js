@@ -14,7 +14,7 @@ module.exports = {
      snippet 直接由数据库切好：以首个命中位置为锚，往前留 80 字再取 320 字，
      命中在标题里（instr(content)=0）时 greatest 兜底成从第 1 个字开始。
      前端拿到这段再自己居中裁一次，所以这里给宽一点没关系。 */
-  SearchCards: ({ userid, q, limit, offset, sort, order }) => {
+  SearchCards: ({ userid, q, folderid, limit, offset, sort, order }) => {
     /* 排序白名单：列名不能用占位符，所以只能靠枚举映射成写死的 SQL 片段，
        请求里的 sort/order 永远只是「选哪一项」，绝不会被拼进语句。
        sort=createtime 按创建时间（默认），sort=updatetime 按更新时间，sort=word 按正文字数；
@@ -30,6 +30,20 @@ module.exports = {
           : "createtime";
     const sort_order = order === "asc" ? "asc" : "desc";
 
+    /* 搜索范围：folderid 传了具体值（不是 -2 全部）就限定在该文件夹里。
+       阅览模式勾了「当前文件夹」时走这里；主页搜索不带这个参数，行为和原来一致。 */
+    let scope = "";
+    const params = [q, userid, q, q];
+    if (folderid === -1) {
+      scope +=
+        " and Notebookid not in (select notebookid from folder_notebook)";
+    } else if (folderid !== -2 && folderid !== undefined && folderid !== null) {
+      scope +=
+        " and Notebookid in (select notebookid from folder_notebook where folder_id = ?)";
+      params.push(folderid);
+    }
+    params.push(limit, offset);
+
     const sql_str = `
       select Notebookid, authorid, title, createtime, updatetime,
              is_public, is_ai_generated,
@@ -37,21 +51,95 @@ module.exports = {
              substring(content, greatest(1, instr(content, ?) - 80), 320) as snippet
       from Notebooklist
       where authorid = ?
-        and (instr(title, ?) > 0 or instr(content, ?) > 0)
+        and (instr(title, ?) > 0 or instr(content, ?) > 0)${scope}
       order by ${sort_column} ${sort_order}, Notebookid desc
       limit ? offset ?;`;
-    return db_promise.query(sql_str, [q, userid, q, q, limit, offset]);
+    return db_promise.query(sql_str, params);
   },
 
   /** 搜索命中总数，给前端显示「找到 N 篇」和判断还有没有下一页 */
-  CountSearch: ({ userid, q }) => {
+  CountSearch: ({ userid, q, folderid }) => {
+    let scope = "";
+    const params = [userid, q, q];
+    if (folderid === -1) {
+      scope +=
+        " and Notebookid not in (select notebookid from folder_notebook)";
+    } else if (folderid !== -2 && folderid !== undefined && folderid !== null) {
+      scope +=
+        " and Notebookid in (select notebookid from folder_notebook where folder_id = ?)";
+      params.push(folderid);
+    }
+
     const sql_str = `
       select count(*) as total
       from Notebooklist
       where authorid = ?
-        and (instr(title, ?) > 0 or instr(content, ?) > 0);`;
-    return db_promise.query(sql_str, [userid, q, q]);
+        and (instr(title, ?) > 0 or instr(content, ?) > 0)${scope};`;
+    return db_promise.query(sql_str, params);
   },
+
+  /* ===== 阅览模式：全量文章分页列表 =====
+     和搜索的区别只有「不筛关键词」，其余（排序白名单、分页、字段裁剪）完全一致，
+     所以卡片和搜索页是同一套观感。
+
+     排序白名单和 SearchCards 同一套规矩：列名不能用占位符，只能枚举映射成写死片段。
+     第二排序键固定 Notebookid desc，防 0 字/同秒文章翻页重复漏项。
+
+     snippet 给 content 开头一段 —— 阅览模式没有命中位置，前端当作纯文本预览，
+     不做高亮。长度跟搜索的 snippet 对齐（320）。 */
+  ListCards: ({ userid, folderid, limit, offset, sort, order }) => {
+    const sort_column =
+      sort === "word"
+        ? "char_length(content)"
+        : sort === "updatetime"
+          ? "updatetime"
+          : "createtime";
+    const sort_order = order === "asc" ? "asc" : "desc";
+
+    let where = "n.authorid = ?";
+    const params = [userid];
+
+    /* 文件夹筛选：-2 = 全部笔记（默认，不加条件），-1 = 未分类，
+       其余是具体 folder_id —— 走 folder_notebook 关联。 */
+    if (folderid === -1) {
+      where +=
+        " and n.Notebookid not in (select notebookid from folder_notebook)";
+    } else if (folderid !== -2 && folderid !== undefined && folderid !== null) {
+      where +=
+        " and n.Notebookid in (select notebookid from folder_notebook where folder_id = ?)";
+      params.push(folderid);
+    }
+
+    const sql_str = `
+      select n.Notebookid, n.authorid, n.title, n.createtime, n.updatetime,
+             n.is_public, n.is_ai_generated,
+             char_length(n.content) as length,
+             substring(n.content, 1, 320) as snippet
+      from Notebooklist n
+      where ${where}
+      order by ${sort_column} ${sort_order}, n.Notebookid desc
+      limit ? offset ?;`;
+    return db_promise.query(sql_str, [...params, limit, offset]);
+  },
+
+  /** 阅览模式的总数，给分页器用 */
+  CountList: ({ userid, folderid }) => {
+    let where = "n.authorid = ?";
+    const params = [userid];
+
+    if (folderid === -1) {
+      where +=
+        " and n.Notebookid not in (select notebookid from folder_notebook)";
+    } else if (folderid !== -2 && folderid !== undefined && folderid !== null) {
+      where +=
+        " and n.Notebookid in (select notebookid from folder_notebook where folder_id = ?)";
+      params.push(folderid);
+    }
+
+    const sql_str = `select count(*) as total from Notebooklist n where ${where};`;
+    return db_promise.query(sql_str, params);
+  },
+
   // 查询字数
   wordCount: async (userid, fid) => {
     let sql_str;
